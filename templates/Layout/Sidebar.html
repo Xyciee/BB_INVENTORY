@@ -1,0 +1,25 @@
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <span>Inventory</span>
+    </div>
+
+    <nav class="sidebar-nav">
+        <ul>
+            <li>
+                <a href="{% url 'analytics' %}" class="{% if current_page == 'analytics' %}active{% endif %}">
+                    Analytics
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'inventory' %}" class="{% if current_page == 'inventory' %}active{% endif %}">
+                    Inventory
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'sales' %}" class="{% if current_page == 'sales' %}active{% endif %}">
+                    Sales
+                </a>
+            </li>
+        </ul>
+    </nav>
+</aside>

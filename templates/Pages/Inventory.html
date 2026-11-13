@@ -1,0 +1,564 @@
+{% extends 'Layout/Main.html' %}
+
+{% block content %}
+<style>
+    .summary-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    .summary-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 16px 20px;
+    }
+
+    .summary-card span {
+        font-size: 0.8rem;
+        color: #64748b;
+    }
+
+    .summary-card h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-top: 4px;
+        color: #0f172a;
+    }
+
+    .scanner-banner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #f8fafc;
+        border: 1px dashed #cbd5e1;
+        border-radius: 6px;
+        padding: 10px 14px;
+        margin-bottom: 16px;
+        font-size: 0.85rem;
+        color: #334155;
+    }
+
+    .scanner-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+    }
+
+    .pulse-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #10b981;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+    }
+
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .form-group label {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #334155;
+    }
+
+    .form-input {
+        padding: 9px 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        font-size: 0.92rem;
+        color: #0f172a;
+        outline: none;
+        transition: border-color 0.15s;
+    }
+
+    .form-input:focus {
+        border-color: #0f172a;
+    }
+
+    .btn-row {
+        display: flex;
+        gap: 10px;
+        margin-top: 16px;
+    }
+
+    .btn {
+        padding: 9px 16px;
+        border-radius: 6px;
+        font-size: 0.88rem;
+        font-weight: 600;
+        border: 1px solid transparent;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-primary {
+        background: #0f172a;
+        color: #ffffff;
+    }
+
+    .btn-primary:hover {
+        background: #1e293b;
+    }
+
+    .btn-outline {
+        background: #ffffff;
+        border-color: #cbd5e1;
+        color: #0f172a;
+    }
+
+    .btn-outline:hover {
+        background: #f1f5f9;
+    }
+
+    .btn-danger {
+        background: #ffffff;
+        border-color: #fecaca;
+        color: #dc2626;
+        padding: 5px 10px;
+        font-size: 0.78rem;
+    }
+
+    .btn-sm {
+        padding: 4px 10px;
+        font-size: 0.8rem;
+    }
+
+    .is-hidden {
+        display: none !important;
+    }
+
+    .action-btns {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .alert-error {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #b91c1c;
+        padding: 10px 14px;
+        border-radius: 6px;
+        margin-bottom: 14px;
+        font-size: 0.86rem;
+    }
+
+    .table-wrap {
+        overflow-x: auto;
+        margin-top: 12px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.88rem;
+    }
+
+    th,
+    td {
+        text-align: left;
+        padding: 11px 12px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    th {
+        font-size: 0.76rem;
+        text-transform: uppercase;
+        color: #64748b;
+        background: #f8fafc;
+        font-weight: 600;
+    }
+
+    .code-badge {
+        font-family: monospace;
+        background: #f1f5f9;
+        padding: 3px 7px;
+        border-radius: 4px;
+        font-size: 0.82rem;
+    }
+
+    .stock-controls {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .stock-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 999px;
+        font-size: 0.74rem;
+        font-weight: 600;
+    }
+
+    .stock-ok {
+        background: #ecfdf5;
+        color: #047857;
+    }
+
+    .stock-low {
+        background: #fffbeb;
+        color: #b45309;
+    }
+
+    .stock-out {
+        background: #fef2f2;
+        color: #b91c1c;
+    }
+</style>
+
+<!-- Stock Summary Cards -->
+<div class="summary-row">
+    <div class="summary-card">
+        <span>Total Products</span>
+        <h3>{{ products|length }}</h3>
+    </div>
+    <div class="summary-card">
+        <span>Total Stock Quantity</span>
+        <h3>{{ total_stock }}</h3>
+    </div>
+    <div class="summary-card">
+        <span>Low / Out of Stock (&le; 5)</span>
+        <h3>{{ low_stock_count }}</h3>
+    </div>
+</div>
+
+<!-- Add / Edit Product Form -->
+<div class="card" id="inventoryFormCard" style="margin-bottom: 20px;">
+    <h2 id="formHeading">{% if edit_product %}Edit Product{% else %}Add Product{% endif %}</h2>
+    <p id="formSubtext" style="margin-bottom: 14px;">
+        {% if edit_product %}
+            Update details for <strong>{{ edit_product.name }}</strong>.
+        {% else %}
+            Scan barcode number and fill in product details.
+        {% endif %}
+    </p>
+
+    {% if error %}
+        <div class="alert-error">{{ error }}</div>
+    {% endif %}
+
+    <div class="scanner-banner">
+        <div class="scanner-status">
+            <span class="pulse-dot"></span>
+            <span id="scannerStatusText">Scanner Ready — Focus on Barcode Number field</span>
+        </div>
+        <button type="button" class="btn btn-outline btn-sm" id="focusScannerBtn">Focus Scanner</button>
+    </div>
+
+    <form method="POST" action="{% url 'inventory' %}" id="inventoryForm">
+        {% csrf_token %}
+        <input type="hidden" id="productIdInput" name="product_id" value="{{ edit_product.id|default:'' }}">
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="barcodeInput">Barcode Number</label>
+                <input
+                    type="text"
+                    id="barcodeInput"
+                    name="barcode"
+                    class="form-input"
+                    placeholder="Scan or enter barcode number"
+                    value="{{ edit_product.barcode|default:'' }}"
+                    autofocus
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="nameInput">Product Name</label>
+                <input
+                    type="text"
+                    id="nameInput"
+                    name="name"
+                    class="form-input"
+                    placeholder="Enter product name"
+                    value="{{ edit_product.name|default:'' }}"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="variantInput">Product Variants</label>
+                <input
+                    type="text"
+                    id="variantInput"
+                    name="variant"
+                    class="form-input"
+                    placeholder="e.g. Shade #01, 50ml, Matte"
+                    value="{{ edit_product.variant|default:'' }}"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="quantityInput">Quantity</label>
+                <input
+                    type="number"
+                    id="quantityInput"
+                    name="quantity"
+                    class="form-input"
+                    value="{{ edit_product.quantity|default_if_none:1 }}"
+                    min="0"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="priceInput">Price (&#8369;)</label>
+                <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    id="priceInput"
+                    name="price"
+                    class="form-input"
+                    placeholder="0.00"
+                    value="{{ edit_product.price|default:'' }}"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="discountedPriceInput">Discounted Price (&#8369;)</label>
+                <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    id="discountedPriceInput"
+                    name="discounted_price"
+                    class="form-input"
+                    placeholder="0.00 (Optional)"
+                    value="{{ edit_product.discounted_price|default_if_none:'' }}"
+                >
+            </div>
+        </div>
+
+        <div class="btn-row">
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+                {% if edit_product %}Update Product{% else %}Add / Save Product{% endif %}
+            </button>
+            <button
+                type="button"
+                class="btn btn-outline {% if not edit_product %}is-hidden{% endif %}"
+                id="cancelEditBtn"
+            >
+                Cancel Edit
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Inventory & Stock Quantity Table -->
+<div class="card">
+    <h2>Inventory &amp; Stock Quantity</h2>
+    <p>Live tracking of cosmetics products and stock quantities.</p>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Barcode Number</th>
+                    <th>Product Name</th>
+                    <th>Product Variants</th>
+                    <th>Quantity</th>
+                    <th>Status</th>
+                    <th>Price</th>
+                    <th>Discounted Price</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in products %}
+                <tr>
+                    <td><span class="code-badge">{{ item.barcode }}</span></td>
+                    <td><strong>{{ item.name }}</strong></td>
+                    <td>{{ item.variant|default:"—" }}</td>
+                    <td>
+                        <div class="stock-controls">
+                            <form method="POST" action="{% url 'update_stock' item.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="change" value="dec">
+                                <button type="submit" class="btn btn-outline btn-sm">&minus;</button>
+                            </form>
+                            <strong>{{ item.quantity }}</strong>
+                            <form method="POST" action="{% url 'update_stock' item.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="change" value="inc">
+                                <button type="submit" class="btn btn-outline btn-sm">+</button>
+                            </form>
+                        </div>
+                    </td>
+                    <td>
+                        {% if item.quantity == 0 %}
+                            <span class="stock-badge stock-out">Out of Stock</span>
+                        {% elif item.is_low_stock %}
+                            <span class="stock-badge stock-low">Low Stock</span>
+                        {% else %}
+                            <span class="stock-badge stock-ok">In Stock</span>
+                        {% endif %}
+                    </td>
+                    <td>&#8369;{{ item.price }}</td>
+                    <td>
+                        {% if item.discounted_price %}
+                            <strong>&#8369;{{ item.discounted_price }}</strong>
+                        {% else %}
+                            <span style="color: #94a3b8;">&mdash;</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="action-btns">
+                            <button
+                                type="button"
+                                class="btn btn-outline btn-sm js-edit-btn"
+                                data-id="{{ item.id }}"
+                                data-barcode="{{ item.barcode }}"
+                                data-name="{{ item.name }}"
+                                data-variant="{{ item.variant }}"
+                                data-quantity="{{ item.quantity }}"
+                                data-price="{{ item.price }}"
+                                data-discounted-price="{{ item.discounted_price|default_if_none:'' }}"
+                            >
+                                Edit
+                            </button>
+                            <form method="POST" action="{% url 'delete_product' item.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" style="text-align: center; color: #64748b; padding: 24px;">
+                        No products in inventory yet. Scan a barcode above to add a product.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const productIdInput = document.getElementById('productIdInput');
+    const barcodeInput = document.getElementById('barcodeInput');
+    const nameInput = document.getElementById('nameInput');
+    const variantInput = document.getElementById('variantInput');
+    const qtyInput = document.getElementById('quantityInput');
+    const priceInput = document.getElementById('priceInput');
+    const discInput = document.getElementById('discountedPriceInput');
+    const statusText = document.getElementById('scannerStatusText');
+    const focusBtn = document.getElementById('focusScannerBtn');
+    const formHeading = document.getElementById('formHeading');
+    const formSubtext = document.getElementById('formSubtext');
+    const submitBtn = document.getElementById('submitBtn');
+    const cancelEditBtn = document.getElementById('cancelEditBtn');
+    const formCard = document.getElementById('inventoryFormCard');
+
+    document.querySelectorAll('.js-edit-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            productIdInput.value = btn.getAttribute('data-id') || '';
+            barcodeInput.value = btn.getAttribute('data-barcode') || '';
+            nameInput.value = btn.getAttribute('data-name') || '';
+            variantInput.value = btn.getAttribute('data-variant') || '';
+            qtyInput.value = btn.getAttribute('data-quantity') || '0';
+            priceInput.value = btn.getAttribute('data-price') || '';
+            discInput.value = btn.getAttribute('data-discounted-price') || '';
+
+            formHeading.textContent = 'Edit Product';
+            formSubtext.textContent = 'Editing inventory item: ' + nameInput.value + ' (' + barcodeInput.value + ')';
+            submitBtn.textContent = 'Update Product';
+            cancelEditBtn.classList.remove('is-hidden');
+            statusText.textContent = 'Edit Mode — Modify fields and click Update Product';
+
+            formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            nameInput.focus();
+        });
+    });
+
+    if (cancelEditBtn) {
+        cancelEditBtn.addEventListener('click', function () {
+            productIdInput.value = '';
+            barcodeInput.value = '';
+            nameInput.value = '';
+            variantInput.value = '';
+            qtyInput.value = '1';
+            priceInput.value = '';
+            discInput.value = '';
+
+            formHeading.textContent = 'Add Product';
+            formSubtext.textContent = 'Scan barcode number and fill in product details.';
+            submitBtn.textContent = 'Add / Save Product';
+            cancelEditBtn.classList.add('is-hidden');
+            statusText.textContent = 'Scanner Ready — Focus on Barcode Number field';
+            barcodeInput.focus();
+        });
+    }
+
+    if (focusBtn) {
+        focusBtn.addEventListener('click', function () {
+            barcodeInput.focus();
+            barcodeInput.select();
+        });
+    }
+
+    barcodeInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const scannedCode = barcodeInput.value.trim();
+            if (!scannedCode) return;
+
+            statusText.textContent = 'Scanned: ' + scannedCode + ' — Checking inventory...';
+
+            fetch('/api/barcode/' + encodeURIComponent(scannedCode) + '/')
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
+                    if (data.found) {
+                        productIdInput.value = data.id;
+                        nameInput.value = data.name;
+                        variantInput.value = data.variant || '';
+                        qtyInput.value = parseInt(data.quantity, 10) + 1;
+                        priceInput.value = data.price;
+                        discInput.value = data.discounted_price || '';
+                        formHeading.textContent = 'Edit Product';
+                        submitBtn.textContent = 'Update Product';
+                        cancelEditBtn.classList.remove('is-hidden');
+                        statusText.textContent = 'Existing product loaded (' + data.name + '). Quantity incremented (+1).';
+                        qtyInput.focus();
+                        qtyInput.select();
+                    } else {
+                        productIdInput.value = '';
+                        statusText.textContent = 'New barcode scanned (' + scannedCode + '). Enter product name, variants, quantity, and prices.';
+                        nameInput.focus();
+                    }
+                })
+                .catch(function () {
+                    nameInput.focus();
+                });
+        }
+    });
+});
+</script>
+{% endblock %}

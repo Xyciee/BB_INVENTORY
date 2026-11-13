@@ -1,0 +1,325 @@
+{% extends 'Layout/Main.html' %}
+
+{% block content %}
+<style>
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    .kpi-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 18px 20px;
+    }
+
+    .kpi-card span {
+        font-size: 0.82rem;
+        color: #64748b;
+    }
+
+    .kpi-card h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-top: 4px;
+    }
+
+    .charts-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 18px;
+        margin-bottom: 18px;
+    }
+
+    @media (max-width: 900px) {
+        .charts-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .chart-box {
+        position: relative;
+        height: 280px;
+        margin-top: 12px;
+    }
+
+    .table-header-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+
+    .live-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: #047857;
+        background: #ecfdf5;
+        padding: 4px 10px;
+        border-radius: 999px;
+    }
+
+    .live-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #10b981;
+    }
+
+    .table-wrap {
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.88rem;
+    }
+
+    th,
+    td {
+        text-align: left;
+        padding: 11px 12px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    th {
+        font-size: 0.76rem;
+        text-transform: uppercase;
+        color: #64748b;
+        background: #f8fafc;
+        font-weight: 600;
+    }
+
+    .code-badge {
+        font-family: monospace;
+        background: #f1f5f9;
+        padding: 3px 7px;
+        border-radius: 4px;
+        font-size: 0.82rem;
+    }
+</style>
+
+<!-- KPI Summary Cards -->
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <span>Total Products</span>
+        <h2>{{ total_products|default:0 }}</h2>
+    </div>
+    <div class="kpi-card">
+        <span>Total Stock Units</span>
+        <h2>{{ total_stock|default:0 }}</h2>
+    </div>
+    <div class="kpi-card">
+        <span>Total Inventory Value</span>
+        <h2>&#8369;{{ total_value|floatformat:2|default:"0.00" }}</h2>
+    </div>
+    <div class="kpi-card">
+        <span>Total Sales Revenue</span>
+        <h2 id="kpiSalesRevenue">&#8369;{{ total_sales_revenue|floatformat:2|default:"0.00" }}</h2>
+    </div>
+</div>
+
+<!-- Top Row Charts -->
+<div class="charts-grid">
+    <div class="card">
+        <h2>Stock Quantity by Product</h2>
+        <p>Current stock units per cosmetic item.</p>
+        <div class="chart-box">
+            <canvas id="stockBarChart"></canvas>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Stock Status Breakdown</h2>
+        <p>In Stock vs. Low Stock vs. Out of Stock.</p>
+        <div class="chart-box">
+            <canvas id="statusDoughnutChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Products Real-Time Sales Table -->
+<div class="card">
+    <div class="table-header-row">
+        <div>
+            <h2>Products Real-Time Sales</h2>
+        </div>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Barcode Number</th>
+                    <th>Product Name</th>
+                    <th>Product Variants</th>
+                    <th>Selling Price</th>
+                    <th>Units Sold</th>
+                    <th>Total Sales Revenue</th>
+                    <th>Remaining Stock</th>
+                    <th>Last Sale</th>
+                </tr>
+            </thead>
+            <tbody id="realtimeSalesBody">
+                {% for row in product_sales_rows %}
+                <tr>
+                    <td><span class="code-badge">{{ row.barcode }}</span></td>
+                    <td><strong>{{ row.name }}</strong></td>
+                    <td>{{ row.variant }}</td>
+                    <td>&#8369;{{ row.selling_price }}</td>
+                    <td><strong>{{ row.units_sold }}</strong></td>
+                    <td><strong>&#8369;{{ row.revenue }}</strong></td>
+                    <td>{{ row.stock }}</td>
+                    <td style="color: #64748b; font-size: 0.82rem;">{{ row.last_sold }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" style="text-align: center; color: #64748b; padding: 24px;">
+                        No products available yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{{ chart_data|json_script:"analytics-chart-data" }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const rawDataEl = document.getElementById('analytics-chart-data');
+        const data = rawDataEl ? JSON.parse(rawDataEl.textContent) : {};
+
+        const labels = (data.labels && data.labels.length) ? data.labels : ['No Products Yet'];
+        const quantities = (data.quantities && data.quantities.length) ? data.quantities : [0];
+        const prices = (data.prices && data.prices.length) ? data.prices : [0];
+        const discPrices = (data.discounted_prices && data.discounted_prices.length) ? data.discounted_prices : [0];
+        const statusCounts = data.status_counts || [0, 0, 0];
+
+        // 1. Stock Quantity Bar Chart
+        new Chart(document.getElementById('stockBarChart'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Stock Quantity',
+                    data: quantities,
+                    backgroundColor: '#0f172a',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { precision: 0 } }
+                }
+            }
+        });
+
+        // 2. Stock Status Doughnut Chart
+        new Chart(document.getElementById('statusDoughnutChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['In Stock (> 5)', 'Low Stock (1-5)', 'Out of Stock (0)'],
+                datasets: [{
+                    data: statusCounts,
+                    backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+
+        // 3. Regular Price vs Discounted Price Chart
+        new Chart(document.getElementById('priceCompareChart'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Regular Price (₱)',
+                        data: prices,
+                        backgroundColor: '#94a3b8',
+                        borderRadius: 6
+                    },
+                    {
+                        label: 'Discounted / Selling Price (₱)',
+                        data: discPrices,
+                        backgroundColor: '#0f172a',
+                        borderRadius: 6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Real-Time Sales Polling (updates table every 4 seconds)
+        const salesBody = document.getElementById('realtimeSalesBody');
+        const kpiSalesRevenue = document.getElementById('kpiSalesRevenue');
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function refreshRealtimeSales() {
+            fetch('{% url "realtime_sales_api" %}')
+                .then(function (res) { return res.json(); })
+                .then(function (payload) {
+                    if (kpiSalesRevenue && payload.total_sales_revenue !== undefined) {
+                        kpiSalesRevenue.innerHTML = '&#8369;' + escapeHtml(payload.total_sales_revenue);
+                    }
+                    if (!salesBody || !payload.rows) return;
+                    if (payload.rows.length === 0) {
+                        salesBody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #64748b; padding: 24px;">No products available yet.</td></tr>';
+                        return;
+                    }
+                    salesBody.innerHTML = payload.rows.map(function (r) {
+                        return '<tr>' +
+                            '<td><span class="code-badge">' + escapeHtml(r.barcode) + '</span></td>' +
+                            '<td><strong>' + escapeHtml(r.name) + '</strong></td>' +
+                            '<td>' + escapeHtml(r.variant) + '</td>' +
+                            '<td>&#8369;' + escapeHtml(r.selling_price) + '</td>' +
+                            '<td><strong>' + escapeHtml(String(r.units_sold)) + '</strong></td>' +
+                            '<td><strong>&#8369;' + escapeHtml(r.revenue) + '</strong></td>' +
+                            '<td>' + escapeHtml(String(r.stock)) + '</td>' +
+                            '<td style="color: #64748b; font-size: 0.82rem;">' + escapeHtml(r.last_sold) + '</td>' +
+                            '</tr>';
+                    }).join('');
+                })
+                .catch(function () { });
+        }
+
+        setInterval(refreshRealtimeSales, 4000);
+    });
+</script>
+{% endblock %}

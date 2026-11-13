@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title|default:"Analytics" }} - BB Cosmetics</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 220px;
+            background-color: #ffffff;
+            border-right: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 100;
+        }
+
+        .sidebar-brand {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #0f172a;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .sidebar-nav {
+            padding: 16px 12px;
+        }
+
+        .sidebar-nav ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .sidebar-nav a {
+            display: block;
+            padding: 10px 12px;
+            border-radius: 6px;
+            color: #475569;
+            text-decoration: none;
+            font-size: 0.92rem;
+            font-weight: 500;
+            transition: background-color 0.15s, color 0.15s;
+        }
+
+        .sidebar-nav a:hover {
+            background-color: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .sidebar-nav a.active {
+            background-color: #0f172a;
+            color: #ffffff;
+        }
+
+        /* Main Wrapper */
+        .main-wrapper {
+            flex: 1;
+            margin-left: 220px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            height: 60px;
+            background-color: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+
+        .page-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            padding: 24px;
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .card h2 {
+            font-size: 1rem;
+            margin-bottom: 6px;
+        }
+
+        .card p {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            padding: 14px 24px;
+            font-size: 0.82rem;
+            color: #64748b;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.2s ease;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-wrapper {
+                margin-left: 0;
+            }
+
+            .menu-toggle {
+                display: inline-block;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    {% include 'Layout/Sidebar.html' %}
+
+    <div class="main-wrapper">
+        {% include 'Layout/Header.html' %}
+
+        <main class="content">
+            {% block content %}{% endblock %}
+        </main>
+
+        {% include 'Layout/Footer.html' %}
+    </div>
+
+</body>
+</html>
+
