@@ -1,166 +1,184 @@
+import json
 from decimal import Decimal, InvalidOperation
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.db.models import Sum, Max
-from django.utils.timezone import localtime
+from django.db.models import Sum
 from .models import Product, Sale
 
 
-def _save_product_from_post(request):
-    product_id = request.POST.get('product_id', '').strip()
-    barcode = request.POST.get('barcode', '').strip()
-    name = request.POST.get('name', '').strip()
-    variant = request.POST.get('variant', '').strip()
-    quantity_raw = request.POST.get('quantity', '1').strip()
-    price_raw = request.POST.get('price', '0').strip()
-    discounted_raw = request.POST.get('discounted_price', '').strip()
+DEFAULT_COSMETICS = [
+    {
+        'barcode': 'BB-FACE-001',
+        'name': 'Radiant Cushion Foundation SPF50',
+        'category': 'face',
+        'variant': '21N Warm Ivory, 23N Natural Beige, 25N Honey Sand',
+        'price': Decimal('599.00'),
+        'quantity': 25,
+        'image_url': 'https://images.unsplash.com/photo-1631729371254-42c2892f0e6e?auto=format&fit=crop&w=600&q=80',
+    },
+    {
+        'barcode': 'BB-FACE-002',
+        'name': 'Pore Blur Setting Powder',
+        'category': 'face',
+        'variant': 'Translucent, Soft Pink, Warm Nude',
+        'price': Decimal('349.00'),
+        'quantity': 30,
+        'image_url': 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=600&q=80',
+    },
+    {
+        'barcode': 'BB-LIPS-001',
+        'name': 'Velvet Matte Lip Tint',
+        'category': 'lips',
+        'variant': '#01 Peach Nude, #04 Rose Petal, #07 Berry Wine',
+        'price': Decimal('299.00'),
+        'quantity': 40,
+        'image_url': 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=600&q=80',
+    },
+    {
+        'barcode': 'BB-LIPS-002',
+        'name': 'Hydro Plump Lip Gloss',
+        'category': 'lips',
+        'variant': '#01 Clear Crystal, #02 Honey Glow, #03 Cherry Dew',
+        'price': Decimal('279.00'),
+        'quantity': 35,
+        'image_url': 'https://images.unsplash.com/photo-1619451334792-150fd785ee74?auto=format&fit=crop&w=600&q=80',
+    },
+    {
+        'barcode': 'BB-EYES-001',
+        'name': '9-Pan Eyeshadow Palette',
+        'category': 'eyes',
+        'variant': 'Sunset Rose, Cocoa Mocha, Champagne Gold',
+        'price': Decimal('499.00'),
+        'quantity': 20,
+        'image_url': 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=600&q=80',
+    },
+    {
+        'barcode': 'BB-CHEEKS-001',
+        'name': 'Silk Dew Liquid Blush',
+        'category': 'cheeks',
+        'variant': '#01 Peony Flush, #02 Coral Crush, #03 Mauve Haze',
+        'price': Decimal('329.00'),
+        'quantity': 28,
+        'image_url': 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=600&q=80',
+    },
+    {
+        'barcode': 'BB-SKIN-001',
+        'name': 'Niacinamide 10% Glow Serum',
+        'category': 'skincare',
+        'variant': '15ml Travel, 30ml Regular, 50ml Jumbo',
+        'price': Decimal('450.00'),
+        'quantity': 32,
+        'image_url': 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=600&q=80',
+    },
+    {
+        'barcode': 'BB-FRAG-001',
+        'name': 'Eau de Parfum Floral Mist',
+        'category': 'fragrance',
+        'variant': '30ml Spray, 50ml Spray, 100ml Bottle',
+        'price': Decimal('799.00'),
+        'quantity': 18,
+        'image_url': 'https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=600&q=80',
+    },
+    {
+        'barcode': 'BB-TOOLS-001',
+        'name': 'Pro Kabuki Makeup Brush Set',
+        'category': 'tools',
+        'variant': 'Rose Gold, Matte Black, Pearl White',
+        'price': Decimal('399.00'),
+        'quantity': 22,
+        'image_url': 'https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?auto=format&fit=crop&w=600&q=80',
+    },
+]
 
-    if not barcode or not name or not price_raw:
-        return None, "Please enter the barcode number, product name, and price."
 
-    try:
-        quantity = max(0, int(quantity_raw or 0))
-        price = Decimal(price_raw)
-        discounted_price = Decimal(discounted_raw) if discounted_raw else None
-    except (ValueError, InvalidOperation):
-        return None, "Invalid price or quantity format."
-
-    if product_id:
-        product = get_object_or_404(Product, pk=product_id)
-        if Product.objects.exclude(pk=product.pk).filter(barcode=barcode).exists():
-            return None, f"Another product with barcode '{barcode}' already exists."
-        product.barcode = barcode
-        product.name = name
-        product.variant = variant
-        product.quantity = quantity
-        product.price = price
-        product.discounted_price = discounted_price
-        product.save()
-        return product, None
-
-    product, _ = Product.objects.update_or_create(
-        barcode=barcode,
-        defaults={
-            'name': name,
-            'variant': variant,
-            'quantity': quantity,
-            'price': price,
-            'discounted_price': discounted_price,
-        }
-    )
-    return product, None
+def _ensure_sample_products():
+    for item in DEFAULT_COSMETICS:
+        obj, created = Product.objects.get_or_create(
+            barcode=item['barcode'],
+            defaults=item,
+        )
+        if not created and ',' not in obj.variant:
+            obj.variant = item['variant']
+            obj.save()
 
 
-def _build_product_sales_rows():
-    products = Product.objects.annotate(
-        units_sold=Sum('sales__quantity_sold'),
-        revenue=Sum('sales__total_amount'),
-        last_sold=Max('sales__sold_at'),
-    ).order_by('-revenue', '-updated_at')
-
-    rows = []
-    for p in products:
-        selling_price = p.discounted_price if p.discounted_price is not None else p.price
-        units_sold = p.units_sold or 0
-        revenue = p.revenue or Decimal('0.00')
-        last_sold_str = localtime(p.last_sold).strftime('%Y-%m-%d %H:%M:%S') if p.last_sold else 'No sales yet'
-        rows.append({
-            'id': p.id,
-            'barcode': p.barcode,
-            'name': p.name,
-            'variant': p.variant or '—',
-            'selling_price': f"{selling_price:.2f}",
-            'stock': p.quantity,
-            'units_sold': units_sold,
-            'revenue': f"{revenue:.2f}",
-            'last_sold': last_sold_str,
-        })
-    return rows
+def _get_filtered_products(request):
+    _ensure_sample_products()
+    category = request.GET.get('category', 'all').strip().lower()
+    qs = Product.objects.all()
+    if category and category != 'all':
+        qs = qs.filter(category=category)
+    return qs, category
 
 
 def analytics_view(request):
-    products = Product.objects.all()
-    total_products = products.count()
-    total_stock = products.aggregate(total=Sum('quantity'))['total'] or 0
-    in_stock_count = products.filter(quantity__gt=5).count()
-    low_stock_count = products.filter(quantity__gt=0, quantity__lte=5).count()
-    out_of_stock_count = products.filter(quantity=0).count()
-
-    total_value = sum(
-        (p.discounted_price if p.discounted_price is not None else p.price) * p.quantity
-        for p in products
-    )
-    total_sales_revenue = Sale.objects.aggregate(total=Sum('total_amount'))['total'] or Decimal('0.00')
-
-    top_products = list(products.order_by('-quantity')[:8])
-    chart_labels = [
-        f"{p.name} ({p.variant})" if p.variant else p.name
-        for p in top_products
-    ]
-    chart_quantities = [p.quantity for p in top_products]
-    chart_prices = [float(p.price) for p in top_products]
-    chart_discounted_prices = [
-        float(p.discounted_price if p.discounted_price is not None else p.price)
-        for p in top_products
-    ]
-
-    product_sales_rows = _build_product_sales_rows()
-
+    products, selected_category = _get_filtered_products(request)
     return render(request, 'Pages/Analytics.html', {
         'page_title': 'Analytics',
         'current_page': 'analytics',
-        'total_products': total_products,
-        'total_stock': total_stock,
-        'low_stock_count': low_stock_count + out_of_stock_count,
-        'total_value': total_value,
-        'total_sales_revenue': total_sales_revenue,
-        'product_sales_rows': product_sales_rows,
-        'chart_data': {
-            'labels': chart_labels,
-            'quantities': chart_quantities,
-            'prices': chart_prices,
-            'discounted_prices': chart_discounted_prices,
-            'status_counts': [in_stock_count, low_stock_count, out_of_stock_count],
-        },
-    })
-
-
-def realtime_sales_api(request):
-    rows = _build_product_sales_rows()
-    total_sales_revenue = Sale.objects.aggregate(total=Sum('total_amount'))['total'] or Decimal('0.00')
-    total_units_sold = Sale.objects.aggregate(total=Sum('quantity_sold'))['total'] or 0
-    return JsonResponse({
-        'rows': rows,
-        'total_sales_revenue': f"{total_sales_revenue:.2f}",
-        'total_units_sold': total_units_sold,
+        'products': products,
+        'selected_category': selected_category,
     })
 
 
 def inventory_view(request):
-    error = None
-    edit_product = None
-
-    edit_id = request.GET.get('edit')
-    if edit_id:
-        edit_product = Product.objects.filter(pk=edit_id).first()
-
-    if request.method == 'POST':
-        product, error = _save_product_from_post(request)
-        if product and not error:
-            return redirect('inventory')
-
-    products = Product.objects.all()
-    total_stock = products.aggregate(total=Sum('quantity'))['total'] or 0
-    low_stock_count = products.filter(quantity__lte=5).count()
-
+    products, selected_category = _get_filtered_products(request)
     return render(request, 'Pages/Inventory.html', {
         'page_title': 'Inventory',
         'current_page': 'inventory',
         'products': products,
-        'total_stock': total_stock,
-        'low_stock_count': low_stock_count,
-        'edit_product': edit_product,
-        'error': error,
+        'selected_category': selected_category,
+    })
+
+
+def sales_view(request):
+    products, selected_category = _get_filtered_products(request)
+    return render(request, 'Pages/Sales.html', {
+        'page_title': 'Sales',
+        'current_page': 'sales',
+        'products': products,
+        'selected_category': selected_category,
+    })
+
+
+def checkout_api(request):
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'error': 'Invalid request method.'}, status=405)
+
+    try:
+        payload = json.loads(request.body.decode('utf-8'))
+        items = payload.get('items', [])
+    except Exception:
+        return JsonResponse({'ok': False, 'error': 'Invalid JSON payload.'}, status=400)
+
+    if not items:
+        return JsonResponse({'ok': False, 'error': 'No items in checkout.'}, status=400)
+
+    total_order = Decimal('0.00')
+    for entry in items:
+        product_id = entry.get('id')
+        qty = max(1, int(entry.get('qty', 1)))
+        product = Product.objects.filter(pk=product_id).first()
+        if not product:
+            continue
+        unit_price = product.selling_price
+        line_total = unit_price * qty
+        Sale.objects.create(
+            product=product,
+            quantity_sold=qty,
+            unit_price=unit_price,
+            total_amount=line_total,
+        )
+        if product.quantity >= qty:
+            product.quantity -= qty
+        else:
+            product.quantity = 0
+        product.save()
+        total_order += line_total
+
+    return JsonResponse({
+        'ok': True,
+        'total_amount': f"{total_order:.2f}",
     })
 
 
@@ -199,45 +217,10 @@ def barcode_lookup(request, barcode):
     return JsonResponse({'found': False})
 
 
-def sales_view(request):
-    error = None
-    if request.method == 'POST':
-        barcode = request.POST.get('barcode', '').strip()
-        qty_raw = request.POST.get('quantity_sold', '1').strip()
-        try:
-            qty = max(1, int(qty_raw or 1))
-        except ValueError:
-            qty = 1
-
-        product = Product.objects.filter(barcode=barcode).first()
-        if not product:
-            error = f"No product found with barcode '{barcode}'."
-        elif product.quantity < qty:
-            error = f"Insufficient stock for {product.name} (Available: {product.quantity})."
-        else:
-            unit_price = product.discounted_price if product.discounted_price is not None else product.price
-            total_amount = unit_price * qty
-            Sale.objects.create(
-                product=product,
-                quantity_sold=qty,
-                unit_price=unit_price,
-                total_amount=total_amount,
-            )
-            product.quantity -= qty
-            product.save()
-            return redirect('sales')
-
-    recent_sales = Sale.objects.select_related('product').all()[:30]
-    products = Product.objects.all()
-    total_revenue = Sale.objects.aggregate(total=Sum('total_amount'))['total'] or Decimal('0.00')
+def realtime_sales_api(request):
+    total_sales_revenue = Sale.objects.aggregate(total=Sum('total_amount'))['total'] or Decimal('0.00')
     total_units_sold = Sale.objects.aggregate(total=Sum('quantity_sold'))['total'] or 0
-
-    return render(request, 'Pages/Sales.html', {
-        'page_title': 'Sales',
-        'current_page': 'sales',
-        'recent_sales': recent_sales,
-        'products': products,
-        'total_revenue': total_revenue,
+    return JsonResponse({
+        'total_sales_revenue': f"{total_sales_revenue:.2f}",
         'total_units_sold': total_units_sold,
-        'error': error,
     })
