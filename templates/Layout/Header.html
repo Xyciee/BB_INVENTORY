@@ -7,18 +7,14 @@
             </a>
 
             <nav class="navbar-nav" id="navbarNav">
-                <a href="{% url 'analytics' %}" class="nav-link {% if current_page == 'analytics' %}active{% endif %}"
-                    title="Search" aria-label="Search">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <a href="{% url 'analytics' %}" class="nav-link {% if current_page == 'analytics' %}active{% endif %}" title="Search" aria-label="Search">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="11" cy="11" r="8"></circle>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
                 </a>
-                <a href="{% url 'inventory' %}" class="nav-link {% if current_page == 'inventory' %}active{% endif %}"
-                    title="Scan" aria-label="Scan">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <a href="{% url 'inventory' %}" class="nav-link {% if current_page == 'inventory' %}active{% endif %}" title="Scan" aria-label="Scan">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
                         <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
                         <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
@@ -28,20 +24,14 @@
                         <line x1="17" y1="8" x2="17" y2="16"></line>
                     </svg>
                 </a>
-                <a href="{% url 'sales' %}" class="nav-link {% if current_page == 'sales' %}active{% endif %}"
-                    title="Product" aria-label="Product">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path
-                            d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
-                        </path>
+                <a href="{% url 'sales' %}" class="nav-link {% if current_page == 'sales' %}active{% endif %}" title="Product" aria-label="Product">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
                         <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
                         <line x1="12" y1="22.08" x2="12" y2="12"></line>
                     </svg>
                 </a>
             </nav>
-
-
         </div>
     </div>
 
@@ -49,17 +39,12 @@
     {% with selected_cat=request.GET.category|default:"all" %}
     <div class="filter-navbar">
         <div class="filter-navbar-container">
-            <a href="?category=all" class="filter-link {% if selected_cat == 'all' %}active{% endif %}">All Items</a>
-            <a href="?category=face" class="filter-link {% if selected_cat == 'face' %}active{% endif %}">Face</a>
-            <a href="?category=lips" class="filter-link {% if selected_cat == 'lips' %}active{% endif %}">Lips</a>
-            <a href="?category=eyes" class="filter-link {% if selected_cat == 'eyes' %}active{% endif %}">Eyes</a>
-            <a href="?category=cheeks" class="filter-link {% if selected_cat == 'cheeks' %}active{% endif %}">Cheeks</a>
-            <a href="?category=skincare"
-                class="filter-link {% if selected_cat == 'skincare' %}active{% endif %}">Skincare</a>
-            <a href="?category=fragrance"
-                class="filter-link {% if selected_cat == 'fragrance' %}active{% endif %}">Fragrance</a>
-            <a href="?category=tools" class="filter-link {% if selected_cat == 'tools' %}active{% endif %}">Tools &amp;
-                Brushes</a>
+            <a href="?category=all" class="filter-link {% if selected_cat == 'all' %}active{% endif %}">ALL ITEMS</a>
+            <a href="?category=lips" class="filter-link {% if selected_cat == 'lips' %}active{% endif %}">LIPS</a>
+            <a href="?category=face" class="filter-link {% if selected_cat == 'face' %}active{% endif %}">FACE</a>
+            <a href="?category=eyes" class="filter-link {% if selected_cat == 'eyes' %}active{% endif %}">EYES</a>
+            <a href="?category=bath_and_body" class="filter-link {% if selected_cat == 'bath_and_body' %}active{% endif %}">BATH AND BODY</a>
+            <a href="?category=fragrance" class="filter-link {% if selected_cat == 'fragrance' %}active{% endif %}">FRAGRANCE</a>
         </div>
     </div>
     {% endwith %}

@@ -1,0 +1,44 @@
+# Confidential & Environment Variables
+.env
+.env.*
+!.env.example
+local_settings.py
+secrets.json
+*.pem
+*.key
+*.crt
+
+# Database Files
+*.sqlite3
+*.sqlite3-journal
+db.sqlite3
+*.sql
+*.dump
+
+# Uploaded Media Files
+/media/
+/staticfiles/
+
+# Python Bytecode & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+
+# Logs & Backups
+*.log
+*.bak
+*.swp
+
+# IDE & OS Files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
