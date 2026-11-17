@@ -12,6 +12,56 @@
         }
     }
 
+    /* Search Bar */
+    .catalog-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+    }
+
+    .search-form {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex: 1;
+        max-width: 460px;
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 9px 14px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        font-size: 0.88rem;
+        color: #0f172a;
+        background: #ffffff;
+        outline: none;
+    }
+
+    .search-input:focus {
+        border-color: #0f172a;
+    }
+
+    .search-btn {
+        padding: 9px 16px;
+        border-radius: 8px;
+        border: none;
+        background: #0f172a;
+        color: #ffffff;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .clear-search-link {
+        font-size: 0.82rem;
+        color: #64748b;
+        text-decoration: none;
+    }
+
     /* Product Cards Grid */
     .products-grid {
         display: grid;
@@ -38,9 +88,12 @@
     .product-image-wrap {
         width: 100%;
         aspect-ratio: 1 / 1;
-        background: #f1f5f9;
+        background: #f8fafc;
+        border-bottom: 1px solid #f1f5f9;
         overflow: hidden;
-        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .product-image {
@@ -48,6 +101,14 @@
         height: 100%;
         object-fit: cover;
         display: block;
+    }
+
+    .no-image-box {
+        color: #94a3b8;
+        font-size: 0.78rem;
+        font-weight: 500;
+        text-align: center;
+        padding: 12px;
     }
 
     .product-body {
@@ -126,6 +187,43 @@
         background: #334155;
     }
 
+    /* Pagination */
+    .pagination-bar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        margin-top: 22px;
+        flex-wrap: wrap;
+    }
+
+    .page-link {
+        padding: 6px 12px;
+        border-radius: 6px;
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+        color: #0f172a;
+        text-decoration: none;
+        font-size: 0.82rem;
+        font-weight: 600;
+    }
+
+    .page-link:hover {
+        background: #f1f5f9;
+    }
+
+    .page-link.active {
+        background: #0f172a;
+        color: #ffffff;
+        border-color: #0f172a;
+    }
+
+    .page-info {
+        font-size: 0.82rem;
+        color: #64748b;
+        padding: 0 8px;
+    }
+
     /* Right Side Checkout Summary */
     .checkout-panel {
         background: #ffffff;
@@ -189,15 +287,6 @@
         gap: 10px;
         padding-bottom: 10px;
         border-bottom: 1px solid #f1f5f9;
-    }
-
-    .checkout-item-img {
-        width: 44px;
-        height: 44px;
-        border-radius: 6px;
-        object-fit: cover;
-        background: #f1f5f9;
-        flex-shrink: 0;
     }
 
     .checkout-item-info {
@@ -317,47 +406,98 @@
 </style>
 
 <div class="pos-layout">
-    <!-- Left: Product Cards Grid -->
-    <div class="products-grid">
-        {% for item in products %}
-        <div
-            class="product-card"
-            data-id="{{ item.id }}"
-            data-name="{{ item.name }}"
-            data-price="{{ item.selling_price }}"
-            data-image="{{ item.image_url|default:'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=600&q=80' }}"
-        >
-            <div class="product-image-wrap">
-                <img
-                    src="{{ item.image_url|default:'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=600&q=80' }}"
-                    alt="{{ item.name }}"
-                    class="product-image"
+    <!-- Left: Search Bar + Product Cards Grid + Pagination -->
+    <div>
+        <div class="catalog-toolbar">
+            <form method="GET" action="" class="search-form">
+                {% if selected_category and selected_category != 'all' %}
+                    <input type="hidden" name="category" value="{{ selected_category }}">
+                {% endif %}
+                <input
+                    type="search"
+                    name="q"
+                    class="search-input"
+                    placeholder="Search products or variants..."
+                    value="{{ search_query|default:'' }}"
                 >
-            </div>
-            <div class="product-body">
-                <div class="product-name">{{ item.name }}</div>
-
-                <div class="variant-select-wrap">
-                    <label class="variant-label">Choose Variant</label>
-                    <select class="variant-select js-variant-select">
-                        {% for v in item.variant_list %}
-                            <option value="{{ v }}">{{ v }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="product-footer">
-                    <span class="product-price">&#8369;{{ item.selling_price }}</span>
-                    <button type="button" class="add-btn js-add-btn">+ Add</button>
-                </div>
-            </div>
+                <button type="submit" class="search-btn">Search</button>
+                {% if search_query %}
+                    <a href="?category={{ selected_category|default:'all' }}" class="clear-search-link">Clear</a>
+                {% endif %}
+            </form>
         </div>
-        {% empty %}
-        <div class="card" style="grid-column: 1 / -1; text-align: center; padding: 36px;">
-            <h2>No products in this category</h2>
-            <p>Select another filter above to view cosmetics items.</p>
+
+        <div class="products-grid">
+            {% for item in products %}
+            <div
+                class="product-card"
+                data-id="{{ item.id }}"
+                data-name="{{ item.name }}"
+                data-price="{{ item.selling_price }}"
+                data-image="{{ item.display_image }}"
+            >
+                <div class="product-image-wrap">
+                    {% if item.display_image %}
+                        <img
+                            src="{{ item.display_image }}"
+                            alt="{{ item.name }}"
+                            class="product-image"
+                        >
+                    {% else %}
+                        <div class="no-image-box">No Image Uploaded</div>
+                    {% endif %}
+                </div>
+                <div class="product-body">
+                    <div class="product-name">{{ item.name }}</div>
+
+                    <div class="variant-select-wrap">
+                        <label class="variant-label">Choose Variant</label>
+                        <select class="variant-select js-variant-select">
+                            {% for v in item.variants.all %}
+                                <option value="{{ v.name }}" data-stock="{{ v.stock }}" {% if v.stock == 0 %}disabled{% endif %}>
+                                    {{ v.name }} (Stock: {{ v.stock }})
+                                </option>
+                            {% empty %}
+                                <option value="Standard">Standard (Stock: {{ item.quantity }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="product-footer">
+                        <span class="product-price">&#8369;{{ item.selling_price }}</span>
+                        <button type="button" class="add-btn js-add-btn">+ Add</button>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="card" style="grid-column: 1 / -1; text-align: center; padding: 36px;">
+                <h2>No products found</h2>
+                <p>Try a different search term or category filter.</p>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
+
+        <!-- Pagination Controls -->
+        {% if page_obj.paginator.num_pages > 1 %}
+        <div class="pagination-bar">
+            {% if page_obj.has_previous %}
+                <a href="?category={{ selected_category|default:'all' }}&amp;q={{ search_query|default:'' }}&amp;page={{ page_obj.previous_page_number }}" class="page-link">&laquo; Prev</a>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                <a
+                    href="?category={{ selected_category|default:'all' }}&amp;q={{ search_query|default:'' }}&amp;page={{ num }}"
+                    class="page-link {% if page_obj.number == num %}active{% endif %}"
+                >
+                    {{ num }}
+                </a>
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <a href="?category={{ selected_category|default:'all' }}&amp;q={{ search_query|default:'' }}&amp;page={{ page_obj.next_page_number }}" class="page-link">Next &raquo;</a>
+            {% endif %}
+        </div>
+        {% endif %}
     </div>
 
     <!-- Right: Checkout Summary Panel -->
@@ -436,7 +576,6 @@ document.addEventListener('DOMContentLoaded', function () {
             totalPrice += lineTotal;
             return (
                 '<div class="checkout-item">' +
-                    '<img src="' + escapeHtml(item.image) + '" alt="" class="checkout-item-img">' +
                     '<div class="checkout-item-info">' +
                         '<div class="checkout-item-name">' + escapeHtml(item.name) + '</div>' +
                         '<div class="checkout-item-variant">Variant: ' + escapeHtml(item.variant || 'Standard') + '</div>' +
@@ -533,6 +672,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     saveCart();
                     successMsg.textContent = 'Checkout complete! Total: \u20B1' + data.total_amount;
                     successMsg.style.display = 'block';
+                    setTimeout(function () { window.location.reload(); }, 800);
                 } else {
                     submitBtn.disabled = false;
                 }

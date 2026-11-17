@@ -1,4 +1,721 @@
 {% extends 'Layout/Main.html' %}
 
 {% block content %}
+<style>
+    .inv-layout {
+        display: grid;
+        grid-template-columns: 380px 1fr;
+        gap: 24px;
+        align-items: start;
+    }
+
+    @media (max-width: 960px) {
+        .inv-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .form-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 20px;
+        position: sticky;
+        top: 120px;
+    }
+
+    .form-card h2 {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 4px;
+    }
+
+    .form-card p {
+        font-size: 0.82rem;
+        color: #64748b;
+        margin-bottom: 16px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 14px;
+    }
+
+    .form-group label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #334155;
+    }
+
+    .form-input,
+    .form-select {
+        padding: 8px 11px;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        font-size: 0.86rem;
+        color: #0f172a;
+        background: #ffffff;
+        outline: none;
+        width: 100%;
+    }
+
+    .form-input:focus,
+    .form-select:focus {
+        border-color: #0f172a;
+    }
+
+    .image-upload-box {
+        border: 1px dashed #cbd5e1;
+        border-radius: 8px;
+        padding: 12px;
+        text-align: center;
+        background: #f8fafc;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .image-preview {
+        width: 90px;
+        height: 90px;
+        border-radius: 8px;
+        object-fit: cover;
+        border: 1px solid #e2e8f0;
+        background: #ffffff;
+        display: none;
+    }
+
+    /* Dynamic Variant + Stock Rows */
+    .variants-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 4px;
+    }
+
+    .variants-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .variant-row {
+        display: grid;
+        grid-template-columns: 1fr 85px 30px;
+        gap: 6px;
+        align-items: center;
+    }
+
+    .remove-variant-btn {
+        height: 34px;
+        border: 1px solid #fecaca;
+        background: #ffffff;
+        color: #dc2626;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 700;
+    }
+
+    .btn-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+    }
+
+    .btn {
+        padding: 9px 14px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border: 1px solid transparent;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .btn-primary {
+        background: #0f172a;
+        color: #ffffff;
+        flex: 1;
+    }
+
+    .btn-primary:hover {
+        background: #1e293b;
+    }
+
+    .btn-outline {
+        background: #ffffff;
+        border-color: #cbd5e1;
+        color: #0f172a;
+    }
+
+    .btn-outline:hover {
+        background: #f1f5f9;
+    }
+
+    .btn-danger {
+        background: #ffffff;
+        border-color: #fecaca;
+        color: #dc2626;
+    }
+
+    .btn-sm {
+        padding: 4px 9px;
+        font-size: 0.76rem;
+    }
+
+    .is-hidden {
+        display: none !important;
+    }
+
+    .alert-error {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #b91c1c;
+        padding: 10px 12px;
+        border-radius: 6px;
+        margin-bottom: 14px;
+        font-size: 0.82rem;
+    }
+
+    /* Right Table Card */
+    .table-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 14px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .search-bar-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 14px;
+    }
+
+    .stock-pill {
+        background: #f1f5f9;
+        color: #0f172a;
+        padding: 5px 12px;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .table-wrap {
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.86rem;
+    }
+
+    th,
+    td {
+        text-align: left;
+        padding: 12px;
+        border-bottom: 1px solid #e2e8f0;
+        vertical-align: top;
+    }
+
+    th {
+        font-size: 0.74rem;
+        text-transform: uppercase;
+        color: #64748b;
+        background: #f8fafc;
+        font-weight: 600;
+    }
+
+    .prod-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .prod-thumb {
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
+        object-fit: cover;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        flex-shrink: 0;
+    }
+
+    .no-thumb {
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
+        border: 1px dashed #cbd5e1;
+        background: #f8fafc;
+        color: #94a3b8;
+        font-size: 0.65rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        flex-shrink: 0;
+    }
+
+    .cat-badge {
+        display: inline-block;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #64748b;
+        background: #f1f5f9;
+        padding: 2px 7px;
+        border-radius: 4px;
+        margin-top: 3px;
+    }
+
+    /* Per-Variant Stock List in Table */
+    .variant-stock-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .variant-stock-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 5px 10px;
+    }
+
+    .variant-stock-name {
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: #1e293b;
+    }
+
+    .stock-controls {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .stock-count-badge {
+        min-width: 24px;
+        text-align: center;
+        font-weight: 700;
+        font-size: 0.84rem;
+    }
+
+    .action-btns {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    /* Pagination */
+    .pagination-bar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        margin-top: 18px;
+        flex-wrap: wrap;
+    }
+
+    .page-link {
+        padding: 6px 12px;
+        border-radius: 6px;
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+        color: #0f172a;
+        text-decoration: none;
+        font-size: 0.82rem;
+        font-weight: 600;
+    }
+
+    .page-link:hover {
+        background: #f1f5f9;
+    }
+
+    .page-link.active {
+        background: #0f172a;
+        color: #ffffff;
+        border-color: #0f172a;
+    }
+</style>
+
+<div class="inv-layout">
+    <!-- Left Column: Upload Image + Per-Variant Stock Form -->
+    <div class="form-card" id="inventoryFormCard">
+        <h2 id="formHeading">Add / Update Inventory</h2>
+        <p id="formSubtext">Upload product image and set different stock for each variant.</p>
+
+        {% if error %}
+            <div class="alert-error">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST" action="{% url 'inventory' %}" enctype="multipart/form-data" id="inventoryForm">
+            {% csrf_token %}
+            <input type="hidden" name="product_id" id="productIdInput" value="">
+            <input type="hidden" name="barcode" id="barcodeInput" value="">
+
+            <div class="form-group">
+                <label for="imageInput">Product Image</label>
+                <div class="image-upload-box">
+                    <img id="imagePreview" src="" alt="Preview" class="image-preview">
+                    <input
+                        type="file"
+                        id="imageInput"
+                        name="image"
+                        accept="image/*"
+                        class="form-input"
+                    >
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="nameInput">Product Name</label>
+                <input
+                    type="text"
+                    id="nameInput"
+                    name="name"
+                    class="form-input"
+                    placeholder="e.g. Sweet Cafe Shiny Tint"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="categoryInput">Category</label>
+                <select id="categoryInput" name="category" class="form-select">
+                    <option value="lips">LIPS</option>
+                    <option value="face">FACE</option>
+                    <option value="eyes">EYES</option>
+                    <option value="bath_and_body">BATH AND BODY</option>
+                    <option value="fragrance">FRAGRANCE</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="priceInput">Price (&#8369;)</label>
+                <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    id="priceInput"
+                    name="price"
+                    class="form-input"
+                    placeholder="0.00"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <div class="variants-header">
+                    <label>Product Variants &amp; Stock</label>
+                    <button type="button" class="btn btn-outline btn-sm" id="addVariantRowBtn">+ Add Variant</button>
+                </div>
+                <div class="variants-list" id="variantsContainer">
+                    <div class="variant-row">
+                        <input type="text" name="variant_name[]" class="form-input" placeholder="Variant name (e.g. Brown Sugar)" required>
+                        <input type="number" name="variant_stock[]" class="form-input" value="10" min="0" placeholder="Stock" required>
+                        <button type="button" class="remove-variant-btn" title="Remove">&times;</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-row">
+                <button type="submit" class="btn btn-primary" id="submitBtn">Save Product</button>
+                <button type="button" class="btn btn-outline is-hidden" id="cancelEditBtn">Cancel</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Right Column: Search Bar + Inventory Database Table + Pagination -->
+    <div class="card">
+        <div class="table-header">
+            <div>
+                <h2>Inventory Database</h2>
+                <p>Manage individual stock per variant or click "Edit" to upload an image and edit variants.</p>
+            </div>
+            <span class="stock-pill">Total Stock: {{ total_stock }} pcs</span>
+        </div>
+
+        <form method="GET" action="{% url 'inventory' %}" class="search-bar-row">
+            {% if selected_category and selected_category != 'all' %}
+                <input type="hidden" name="category" value="{{ selected_category }}">
+            {% endif %}
+            <input
+                type="search"
+                name="q"
+                class="form-input"
+                placeholder="Search inventory by product name, variant, or barcode..."
+                value="{{ search_query|default:'' }}"
+            >
+            <button type="submit" class="btn btn-primary" style="flex: 0 0 auto;">Search</button>
+            {% if search_query %}
+                <a href="{% url 'inventory' %}?category={{ selected_category|default:'all' }}" class="btn btn-outline">Clear</a>
+            {% endif %}
+        </form>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product &amp; Image</th>
+                        <th>Variants &amp; Stock per Variant</th>
+                        <th>Total Stock</th>
+                        <th>Price</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in products %}
+                    <tr>
+                        <td>
+                            <div class="prod-cell">
+                                {% if item.display_image %}
+                                    <img src="{{ item.display_image }}" alt="{{ item.name }}" class="prod-thumb">
+                                {% else %}
+                                    <div class="no-thumb">No Image</div>
+                                {% endif %}
+                                <div>
+                                    <strong>{{ item.name }}</strong>
+                                    <div><span class="cat-badge">{{ item.get_category_display }}</span></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="variant-stock-list">
+                                {% for v in item.variants.all %}
+                                <div class="variant-stock-item">
+                                    <span class="variant-stock-name">{{ v.name }}</span>
+                                    <div class="stock-controls">
+                                        <form method="POST" action="{% url 'update_variant_stock' v.id %}" style="display:inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="change" value="dec">
+                                            <button type="submit" class="btn btn-outline btn-sm">&minus;</button>
+                                        </form>
+                                        <span class="stock-count-badge">{{ v.stock }}</span>
+                                        <form method="POST" action="{% url 'update_variant_stock' v.id %}" style="display:inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="change" value="inc">
+                                            <button type="submit" class="btn btn-outline btn-sm">+</button>
+                                        </form>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </td>
+                        <td><strong>{{ item.total_stock }} pcs</strong></td>
+                        <td><strong>&#8369;{{ item.selling_price }}</strong></td>
+                        <td>
+                            <div class="action-btns">
+                                <button
+                                    type="button"
+                                    class="btn btn-outline btn-sm js-edit-btn"
+                                    data-id="{{ item.id }}"
+                                    data-barcode="{{ item.barcode }}"
+                                    data-name="{{ item.name }}"
+                                    data-category="{{ item.category }}"
+                                    data-price="{{ item.price }}"
+                                    data-image="{{ item.display_image }}"
+                                    data-variants="{{ item.variants_json }}"
+                                >
+                                    Edit
+                                </button>
+                                <form method="POST" action="{% url 'delete_product' item.id %}" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #64748b; padding: 28px;">
+                            No products found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination Controls -->
+        {% if page_obj.paginator.num_pages > 1 %}
+        <div class="pagination-bar">
+            {% if page_obj.has_previous %}
+                <a href="?category={{ selected_category|default:'all' }}&amp;q={{ search_query|default:'' }}&amp;page={{ page_obj.previous_page_number }}" class="page-link">&laquo; Prev</a>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                <a
+                    href="?category={{ selected_category|default:'all' }}&amp;q={{ search_query|default:'' }}&amp;page={{ num }}"
+                    class="page-link {% if page_obj.number == num %}active{% endif %}"
+                >
+                    {{ num }}
+                </a>
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <a href="?category={{ selected_category|default:'all' }}&amp;q={{ search_query|default:'' }}&amp;page={{ page_obj.next_page_number }}" class="page-link">Next &raquo;</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const productIdInput = document.getElementById('productIdInput');
+    const barcodeInput = document.getElementById('barcodeInput');
+    const nameInput = document.getElementById('nameInput');
+    const categoryInput = document.getElementById('categoryInput');
+    const priceInput = document.getElementById('priceInput');
+    const imageInput = document.getElementById('imageInput');
+    const imagePreview = document.getElementById('imagePreview');
+    const variantsContainer = document.getElementById('variantsContainer');
+    const addVariantRowBtn = document.getElementById('addVariantRowBtn');
+    const formHeading = document.getElementById('formHeading');
+    const formSubtext = document.getElementById('formSubtext');
+    const submitBtn = document.getElementById('submitBtn');
+    const cancelEditBtn = document.getElementById('cancelEditBtn');
+    const formCard = document.getElementById('inventoryFormCard');
+
+    function createVariantRow(vName, vStock) {
+        const row = document.createElement('div');
+        row.className = 'variant-row';
+
+        const nameEl = document.createElement('input');
+        nameEl.type = 'text';
+        nameEl.name = 'variant_name[]';
+        nameEl.className = 'form-input';
+        nameEl.placeholder = 'Variant name';
+        nameEl.value = vName || '';
+        nameEl.required = true;
+
+        const stockEl = document.createElement('input');
+        stockEl.type = 'number';
+        stockEl.name = 'variant_stock[]';
+        stockEl.className = 'form-input';
+        stockEl.min = '0';
+        stockEl.placeholder = 'Stock';
+        stockEl.value = (vStock !== undefined && vStock !== null) ? vStock : 10;
+        stockEl.required = true;
+
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'remove-variant-btn';
+        removeBtn.innerHTML = '&times;';
+        removeBtn.title = 'Remove';
+
+        row.appendChild(nameEl);
+        row.appendChild(stockEl);
+        row.appendChild(removeBtn);
+        return row;
+    }
+
+    if (addVariantRowBtn) {
+        addVariantRowBtn.addEventListener('click', function () {
+            variantsContainer.appendChild(createVariantRow('', 10));
+        });
+    }
+
+    variantsContainer.addEventListener('click', function (e) {
+        const btn = e.target.closest('.remove-variant-btn');
+        if (!btn) return;
+        if (variantsContainer.querySelectorAll('.variant-row').length > 1) {
+            btn.closest('.variant-row').remove();
+        }
+    });
+
+    if (imageInput) {
+        imageInput.addEventListener('change', function () {
+            const file = imageInput.files && imageInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    document.querySelectorAll('.js-edit-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            productIdInput.value = btn.getAttribute('data-id') || '';
+            barcodeInput.value = btn.getAttribute('data-barcode') || '';
+            nameInput.value = btn.getAttribute('data-name') || '';
+            categoryInput.value = btn.getAttribute('data-category') || 'lips';
+            priceInput.value = btn.getAttribute('data-price') || '0.00';
+
+            const imgUrl = btn.getAttribute('data-image');
+            if (imgUrl) {
+                imagePreview.src = imgUrl;
+                imagePreview.style.display = 'block';
+            } else {
+                imagePreview.src = '';
+                imagePreview.style.display = 'none';
+            }
+
+            variantsContainer.innerHTML = '';
+            let parsedVariants = [];
+            try {
+                parsedVariants = JSON.parse(btn.getAttribute('data-variants') || '[]');
+            } catch (e) {
+                parsedVariants = [];
+            }
+
+            if (parsedVariants.length) {
+                parsedVariants.forEach(function (v) {
+                    variantsContainer.appendChild(createVariantRow(v.name, v.stock));
+                });
+            } else {
+                variantsContainer.appendChild(createVariantRow('Standard', 10));
+            }
+
+            formHeading.textContent = 'Edit Product Inventory';
+            formSubtext.textContent = 'Editing: ' + nameInput.value;
+            submitBtn.textContent = 'Update Product';
+            cancelEditBtn.classList.remove('is-hidden');
+
+            formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            nameInput.focus();
+        });
+    });
+
+    if (cancelEditBtn) {
+        cancelEditBtn.addEventListener('click', function () {
+            productIdInput.value = '';
+            barcodeInput.value = '';
+            nameInput.value = '';
+            categoryInput.value = 'lips';
+            priceInput.value = '';
+            imageInput.value = '';
+            imagePreview.src = '';
+            imagePreview.style.display = 'none';
+            variantsContainer.innerHTML = '';
+            variantsContainer.appendChild(createVariantRow('', 10));
+
+            formHeading.textContent = 'Add / Update Inventory';
+            formSubtext.textContent = 'Upload product image and set different stock for each variant.';
+            submitBtn.textContent = 'Save Product';
+            cancelEditBtn.classList.add('is-hidden');
+        });
+    }
+});
+</script>
 {% endblock %}

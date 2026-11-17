@@ -10,22 +10,34 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load confidential settings from .env if present
+_env_file = BASE_DIR / '.env'
+if _env_file.exists():
+    for _line in _env_file.read_text(encoding='utf-8').splitlines():
+        _line = _line.strip()
+        if _line and not _line.startswith('#') and '=' in _line:
+            _k, _v = _line.split('=', 1)
+            os.environ.setdefault(_k.strip(), _v.strip())
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-e$g6!3^2)1gl6h36!@&j49%-%qc^qe6j50sr$ns5(!xb&3v5ct'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-dev-fallback-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    h.strip() for h in os.environ.get('DJANGO_ALLOWED_HOSTS', '').split(',') if h.strip()
+]
 
 
 # Application definition
@@ -116,3 +128,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
