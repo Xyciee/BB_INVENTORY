@@ -448,6 +448,13 @@ def sales_view(request):
     date_filter = request.GET.get('date', 'all').strip().lower()
     payment_filter = request.GET.get('payment', 'all').strip()
     page_number = request.GET.get('page', 1)
+    per_page_param = request.GET.get('per_page', '10').strip()
+    try:
+        per_page = int(per_page_param)
+        if per_page not in [5, 10, 20, 50]:
+            per_page = 10
+    except ValueError:
+        per_page = 10
 
     qs = SalesOrder.objects.prefetch_related('items__product').all()
 
@@ -486,7 +493,7 @@ def sales_view(request):
     today_revenue = today_orders_qs.aggregate(total=Sum('total_amount'))['total'] or Decimal('0.00')
     today_orders_count = today_orders_qs.count()
 
-    paginator = Paginator(qs, 15)
+    paginator = Paginator(qs, per_page)
     page_obj = paginator.get_page(page_number)
 
     return render(request, 'Pages/Sales.html', {
@@ -497,6 +504,7 @@ def sales_view(request):
         'search_query': search_query,
         'date_filter': date_filter,
         'payment_filter': payment_filter,
+        'per_page': per_page,
         'total_revenue': total_revenue,
         'total_orders_count': total_orders_count,
         'total_items_sold': total_items_sold,

@@ -434,6 +434,13 @@
         gap: 8px;
     }
 
+    .prod-price-val {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--text-main);
+        white-space: nowrap;
+    }
+
     /* Pagination */
     .pagination-bar {
         display: flex;
@@ -753,10 +760,6 @@
                 <button type="button" class="btn btn-blue" onclick="openImportModal()">
                     <span>📊 Import Excel / CSV</span>
                 </button>
-                <a href="{% url 'download_sample_template' %}" class="btn btn-outline"
-                    title="Download Excel template format">
-                    <span>⬇ Sample Template</span>
-                </a>
             </div>
         </div>
 
@@ -836,7 +839,7 @@
                             <strong style="font-size: 0.95rem;">{{ item.total_stock }} pcs</strong>
                         </td>
                         <td>
-                            <strong style="font-size: 0.95rem; color: var(--text-main);">&#8369;{{ item.selling_price }}</strong>
+                            <strong class="prod-price-val">&#8369;{{ item.selling_price }}</strong>
                         </td>
                         <td>
                             <div class="action-btns">
@@ -980,12 +983,10 @@
                         <input type="text" name="variant_name[]" class="form-input"
                             placeholder="Variant name (e.g. Dry Leaf)" value="Standard" required style="flex: 1.3;">
                         <div class="modal-stock-stepper" style="flex: 1;">
-                            <button type="button" class="stepper-btn"
-                                onclick="const input = this.nextElementSibling; if(parseInt(input.value||0,10)>0) input.value=parseInt(input.value||0,10)-1;">&minus;</button>
+                            <button type="button" class="stepper-btn" onclick="stepModalStock(this, -1)">&minus;</button>
                             <input type="number" name="variant_stock[]" class="form-input" value="10" min="0"
                                 placeholder="Stock" style="text-align: center; font-weight: 700;" required>
-                            <button type="button" class="stepper-btn"
-                                onclick="const input = this.previousElementSibling; input.value=parseInt(input.value||0,10)+1;">+</button>
+                            <button type="button" class="stepper-btn" onclick="stepModalStock(this, 1)">+</button>
                         </div>
                         <button type="button" class="remove-variant-btn" title="Remove">&times;</button>
                     </div>
@@ -1069,8 +1070,16 @@
         }
     }
 
+    function stepModalStock(btn, delta) {
+        const inp = delta < 0 ? btn.nextElementSibling : btn.previousElementSibling;
+        if (inp) {
+            const current = parseInt(inp.value || 0, 10);
+            inp.value = Math.max(0, current + delta);
+        }
+    }
+
     function openImportModal() {
-        const modal = document.getElementById('importModal'); gi
+        const modal = document.getElementById('importModal');
         if (modal) modal.classList.add('active');
     }
 
@@ -1134,9 +1143,9 @@
             row.innerHTML = `
                 <input type="text" name="variant_name[]" class="form-input" placeholder="Variant name" value="${name || 'Standard'}" required style="flex: 1.3;">
                 <div class="modal-stock-stepper" style="flex: 1;">
-                    <button type="button" class="stepper-btn" onclick="const input = this.nextElementSibling; if(parseInt(input.value||0,10)>0) input.value=parseInt(input.value||0,10)-1;">&minus;</button>
+                    <button type="button" class="stepper-btn" onclick="stepModalStock(this, -1)">&minus;</button>
                     <input type="number" name="variant_stock[]" class="form-input" value="${parseInt(stock, 10) || 0}" min="0" placeholder="Stock" style="text-align: center; font-weight: 700;" required>
-                    <button type="button" class="stepper-btn" onclick="const input = this.previousElementSibling; input.value=parseInt(input.value||0,10)+1;">+</button>
+                    <button type="button" class="stepper-btn" onclick="stepModalStock(this, 1)">+</button>
                 </div>
                 <button type="button" class="remove-variant-btn" title="Remove">&times;</button>
             `;

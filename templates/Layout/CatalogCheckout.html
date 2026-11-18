@@ -1345,33 +1345,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     saveCart();
                     playBeep(true);
                     showScannerToast('✓ Scanned: ' + data.name + ' (' + variant + ') added to cart!', true);
-
-                    // Add to Continuous Scanner Modal Session Feed
-                    const sessionExisting = sessionScannedItems.find(function (it) { return it.key === cartKey; });
-                    if (sessionExisting) {
-                        sessionExisting.qty += 1;
-                    } else {
-                        sessionScannedItems.unshift({
-                            key: cartKey,
-                            name: data.name,
-                            variant: variant,
-                            price: parseFloat(data.price || 0),
-                            qty: 1
-                        });
-                    }
-                    updateScannerSessionUI();
-
-                    const statusTxt = document.getElementById('scannerStatusText');
-                    if (statusTxt) {
-                        statusTxt.textContent = '✓ Scanned: ' + data.name + ' (' + variant + ') added!';
-                        statusTxt.style.color = '#4ade80';
-                        setTimeout(function () {
-                            if (statusTxt) {
-                                statusTxt.textContent = 'Scanner Gun Ready • Continuous Scan Active';
-                                statusTxt.style.color = '#22c55e';
-                            }
-                        }, 1800);
-                    }
                 } else {
                     playBeep(false);
                     showCashierStockAlert(
