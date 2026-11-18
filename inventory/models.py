@@ -70,7 +70,36 @@ class ProductVariant(models.Model):
         return f"{self.product.name} - {self.name} (Stock: {self.stock})"
 
 
+class SalesOrder(models.Model):
+    PAYMENT_CHOICES = [
+        ('Cash', 'Cash'),
+        ('GCash', 'GCash'),
+        ('Maya', 'Maya'),
+        ('Card', 'Credit/Debit Card'),
+    ]
+
+    order_number = models.CharField(max_length=50, unique=True)
+    customer_name = models.CharField(max_length=150, default='Walk-in Customer', blank=True)
+    payment_method = models.CharField(max_length=50, choices=PAYMENT_CHOICES, default='Cash')
+    total_items = models.PositiveIntegerField(default=1)
+    total_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    amount_paid = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    change_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.order_number} - {self.customer_name} (\u20B1{self.total_amount})"
+
+    @property
+    def items_list(self):
+        return self.items.select_related('product').all()
+
+
 class Sale(models.Model):
+    order = models.ForeignKey(SalesOrder, on_delete=models.CASCADE, related_name='items', null=True, blank=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='sales')
     variant_name = models.CharField(max_length=150, blank=True, default='')
     quantity_sold = models.PositiveIntegerField(default=1)

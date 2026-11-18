@@ -1,0 +1,25 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+
+{% block content %}
+<div style="max-width: 640px; margin: 24px auto; background: #ffffff; padding: 28px; border-radius: 10px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
+    <h2 style="margin-bottom: 12px; color: #0f172a; font-size: 1.35rem; font-weight: 700;">Import Products from Excel / CSV</h2>
+    <p style="color: #64748b; font-size: 0.92rem; margin-bottom: 22px; line-height: 1.5;">
+        Upload your spreadsheet (<strong>.xlsx</strong>, <strong>.xls</strong>, or <strong>.csv</strong>). The <strong>Master Code</strong> column is automatically assigned as the barcode for the POS plug-and-play scanner!
+    </p>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div style="border: 2px dashed #94a3b8; border-radius: 8px; padding: 30px; text-align: center; background: #f8fafc; margin-bottom: 22px;">
+            <input type="file" name="file" accept=".csv, .xlsx, .xls" required style="font-size: 0.95rem;">
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <a href="{% url 'download_sample_template' %}" style="font-size: 0.9rem; color: #2563eb; font-weight: 600; text-decoration: underline;">⬇ Download Sample CSV</a>
+            <div style="display: flex; gap: 10px;">
+                <a href="{% url 'admin:inventory_product_changelist' %}" class="button" style="background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 6px; text-decoration: none;">Cancel</a>
+                <button type="submit" class="button button-primary" style="background: #2563eb; color: #ffffff; border: none; padding: 8px 18px; border-radius: 6px; font-weight: bold; cursor: pointer;">Upload &amp; Import</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

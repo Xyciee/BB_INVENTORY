@@ -1,24 +1,138 @@
 <style>
     .pos-layout {
         display: grid;
-        grid-template-columns: 1fr 350px;
+        grid-template-columns: 1fr 380px;
         gap: 24px;
         align-items: start;
     }
 
-    @media (max-width: 960px) {
+    @media (max-width: 1024px) {
         .pos-layout {
             grid-template-columns: 1fr;
         }
     }
 
-    /* Search Bar */
+    /* Barcode Scanner Toolbar */
+    .scanner-bar-wrap {
+        background: #ffffff;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 14px 18px;
+        margin-bottom: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        box-shadow: var(--shadow-sm);
+        transition: border-color 0.2s;
+    }
+
+    .scanner-bar-wrap:focus-within {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .scanner-input-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex: 1;
+        min-width: 290px;
+    }
+
+    .scanner-icon-badge {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        background: #0b1120;
+        color: #ffffff;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+        box-shadow: var(--shadow-xs);
+    }
+
+    .scanner-input {
+        flex: 1;
+        padding: 10px 16px;
+        border: 1.5px solid #cbd5e1;
+        border-radius: 10px;
+        font-family: var(--font-mono);
+        font-size: 0.92rem;
+        font-weight: 600;
+        color: var(--text-main);
+        background: #f8fafc;
+        outline: none;
+        letter-spacing: 0.3px;
+        transition: all 0.15s ease;
+    }
+
+    .scanner-input:focus {
+        background: #ffffff;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .scanner-btn {
+        padding: 10px 18px;
+        border-radius: 10px;
+        border: none;
+        background: #0f172a;
+        color: #ffffff;
+        font-size: 0.88rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.15s ease;
+        white-space: nowrap;
+    }
+
+    .scanner-btn:hover {
+        background: #1e293b;
+        transform: translateY(-1px);
+    }
+
+    .scanner-live-badge {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #15803d;
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        padding: 6px 14px;
+        border-radius: 999px;
+        white-space: nowrap;
+        letter-spacing: 0.2px;
+    }
+
+    .pulse-dot {
+        width: 8px;
+        height: 8px;
+        background-color: #16a34a;
+        border-radius: 50%;
+        animation: pulse 1.6s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7); }
+        70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(22, 163, 74, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+    }
+
+    /* Search Toolbar */
     .catalog-toolbar {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 12px;
-        margin-bottom: 16px;
+        margin-bottom: 20px;
         flex-wrap: wrap;
     }
 
@@ -27,61 +141,80 @@
         align-items: center;
         gap: 8px;
         flex: 1;
-        max-width: 460px;
+        max-width: 480px;
     }
 
     .search-input {
         flex: 1;
-        padding: 9px 14px;
-        border: 1px solid #cbd5e1;
-        border-radius: 8px;
-        font-size: 0.88rem;
-        color: #0f172a;
+        padding: 10px 16px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        font-size: 0.9rem;
+        color: var(--text-main);
         background: #ffffff;
         outline: none;
+        transition: all 0.15s ease;
     }
 
     .search-input:focus {
         border-color: #0f172a;
+        box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.08);
     }
 
     .search-btn {
-        padding: 9px 16px;
-        border-radius: 8px;
+        padding: 10px 18px;
+        border-radius: 10px;
         border: none;
         background: #0f172a;
         color: #ffffff;
-        font-size: 0.85rem;
-        font-weight: 600;
+        font-size: 0.88rem;
+        font-weight: 700;
         cursor: pointer;
+        transition: all 0.15s ease;
+    }
+
+    .search-btn:hover {
+        background: #1e293b;
     }
 
     .clear-search-link {
-        font-size: 0.82rem;
-        color: #64748b;
+        font-size: 0.84rem;
+        color: var(--text-muted);
         text-decoration: none;
+        font-weight: 600;
+        padding: 6px 10px;
+        border-radius: 6px;
+        background: #f1f5f9;
+        transition: background 0.15s;
+    }
+
+    .clear-search-link:hover {
+        background: #e2e8f0;
+        color: var(--text-main);
     }
 
     /* Product Cards Grid */
     .products-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(205px, 1fr));
-        gap: 16px;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 18px;
     }
 
     .product-card {
         background: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 10px;
+        border: 1px solid var(--border);
+        border-radius: 14px;
         overflow: hidden;
         display: flex;
         flex-direction: column;
-        transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: var(--shadow-xs);
+        position: relative;
     }
 
     .product-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.08);
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
         border-color: #cbd5e1;
     }
 
@@ -94,6 +227,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        position: relative;
     }
 
     .product-image {
@@ -101,90 +235,152 @@
         height: 100%;
         object-fit: cover;
         display: block;
+        transition: transform 0.3s ease;
+    }
+
+    .product-card:hover .product-image {
+        transform: scale(1.04);
     }
 
     .no-image-box {
         color: #94a3b8;
-        font-size: 0.78rem;
-        font-weight: 500;
+        font-size: 0.76rem;
+        font-weight: 600;
         text-align: center;
-        padding: 12px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
     }
 
     .product-body {
-        padding: 12px 14px 14px;
+        padding: 14px 16px 16px;
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 10px;
         flex: 1;
         justify-content: space-between;
     }
 
     .product-name {
         font-size: 0.92rem;
-        font-weight: 600;
-        color: #0f172a;
-        line-height: 1.35;
+        font-weight: 700;
+        color: var(--text-main);
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        min-height: 2.6em;
     }
 
     .variant-select-wrap {
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 5px;
     }
 
     .variant-label {
-        font-size: 0.72rem;
-        font-weight: 600;
-        color: #64748b;
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: var(--text-muted);
         text-transform: uppercase;
-        letter-spacing: 0.3px;
+        letter-spacing: 0.5px;
     }
 
     .variant-select {
         width: 100%;
-        padding: 6px 8px;
-        border: 1px solid #cbd5e1;
-        border-radius: 6px;
-        font-size: 0.8rem;
-        color: #0f172a;
+        padding: 7px 10px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: var(--text-main);
         background-color: #f8fafc;
         outline: none;
         cursor: pointer;
+        transition: all 0.15s ease;
     }
 
     .variant-select:focus {
-        border-color: #0f172a;
+        border-color: #2563eb;
         background-color: #ffffff;
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
     }
 
     .product-footer {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-top: 2px;
+        margin-top: 4px;
+        padding-top: 10px;
+        border-top: 1px solid #f1f5f9;
     }
 
     .product-price {
-        font-size: 1rem;
-        font-weight: 700;
-        color: #0f172a;
+        font-size: 1.08rem;
+        font-weight: 800;
+        color: var(--text-main);
+        letter-spacing: -0.01em;
     }
 
     .add-btn {
         background: #0f172a;
         color: #ffffff;
         border: none;
-        border-radius: 6px;
-        padding: 6px 12px;
-        font-size: 0.8rem;
-        font-weight: 600;
+        border-radius: 8px;
+        padding: 8px 14px;
+        font-size: 0.82rem;
+        font-weight: 700;
         cursor: pointer;
-        transition: background-color 0.15s;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        transition: all 0.15s ease;
     }
 
     .add-btn:hover {
-        background: #334155;
+        background: #1e293b;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
+    }
+
+    /* Out of Stock & Low Stock Badges */
+    .stock-badge-out {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: #dc2626;
+        color: #ffffff;
+        font-size: 0.68rem;
+        font-weight: 800;
+        padding: 4px 10px;
+        border-radius: 6px;
+        z-index: 2;
+        letter-spacing: 0.6px;
+        box-shadow: 0 2px 6px rgba(220, 38, 38, 0.35);
+    }
+
+    .stock-badge-low {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: #d97706;
+        color: #ffffff;
+        font-size: 0.68rem;
+        font-weight: 800;
+        padding: 4px 10px;
+        border-radius: 6px;
+        z-index: 2;
+        letter-spacing: 0.5px;
+        box-shadow: 0 2px 6px rgba(217, 119, 6, 0.35);
+    }
+
+    .btn-out-of-stock {
+        background: #ef4444 !important;
+        color: #ffffff !important;
+        opacity: 0.95;
     }
 
     /* Pagination */
@@ -193,81 +389,134 @@
         align-items: center;
         justify-content: center;
         gap: 6px;
-        margin-top: 22px;
+        margin-top: 28px;
         flex-wrap: wrap;
     }
 
     .page-link {
-        padding: 6px 12px;
-        border-radius: 6px;
-        border: 1px solid #cbd5e1;
+        padding: 8px 14px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
         background: #ffffff;
-        color: #0f172a;
+        color: var(--text-main);
         text-decoration: none;
-        font-size: 0.82rem;
-        font-weight: 600;
+        font-size: 0.84rem;
+        font-weight: 700;
+        transition: all 0.15s ease;
     }
 
     .page-link:hover {
         background: #f1f5f9;
+        border-color: #cbd5e1;
     }
 
     .page-link.active {
         background: #0f172a;
         color: #ffffff;
         border-color: #0f172a;
+        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
     }
 
-    .page-info {
-        font-size: 0.82rem;
-        color: #64748b;
-        padding: 0 8px;
-    }
-
-    /* Right Side Checkout Summary */
+    /* Right Side Checkout Summary Panel */
     .checkout-panel {
         background: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 10px;
-        padding: 18px;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 22px;
         position: sticky;
-        top: 120px;
+        top: 125px;
         display: flex;
         flex-direction: column;
-        max-height: calc(100vh - 140px);
+        max-height: calc(100vh - 145px);
+        box-shadow: var(--shadow-md);
     }
 
     .checkout-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding-bottom: 12px;
-        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 14px;
+        border-bottom: 1px solid var(--border);
     }
 
     .checkout-title {
-        font-size: 1rem;
-        font-weight: 700;
-        color: #0f172a;
+        font-size: 1.05rem;
+        font-weight: 800;
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 
     .clear-cart-btn {
         background: none;
         border: none;
-        color: #64748b;
+        color: var(--text-muted);
         font-size: 0.8rem;
         cursor: pointer;
-        font-weight: 500;
+        font-weight: 600;
+        padding: 4px 8px;
+        border-radius: 6px;
+        transition: all 0.15s;
     }
 
     .clear-cart-btn:hover {
+        background: #fee2e2;
         color: #dc2626;
+    }
+
+    .cashier-alert-box {
+        background: #fef2f2;
+        border: 1.5px solid #ef4444;
+        border-radius: 10px;
+        padding: 12px 14px;
+        margin: 12px 0;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.12);
+        animation: alertSlide 0.2s ease-out;
+    }
+
+    @keyframes alertSlide {
+        from { transform: translateY(-8px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    .cashier-alert-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 4px;
+    }
+
+    .cashier-alert-title {
+        font-size: 0.86rem;
+        font-weight: 800;
+        color: #991b1b;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .cashier-alert-close {
+        background: transparent;
+        border: none;
+        font-size: 1.3rem;
+        line-height: 1;
+        color: #991b1b;
+        cursor: pointer;
+        padding: 0 4px;
+        font-weight: 700;
+    }
+
+    .cashier-alert-body {
+        font-size: 0.82rem;
+        color: #7f1d1d;
+        line-height: 1.45;
     }
 
     .checkout-items {
         flex: 1;
         overflow-y: auto;
-        padding: 12px 0;
+        padding: 14px 0;
         display: flex;
         flex-direction: column;
         gap: 10px;
@@ -276,17 +525,29 @@
 
     .checkout-empty {
         text-align: center;
-        color: #94a3b8;
-        font-size: 0.86rem;
-        padding: 40px 12px;
+        color: var(--text-light);
+        font-size: 0.88rem;
+        font-weight: 500;
+        padding: 45px 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
     }
 
     .checkout-item {
         display: flex;
         align-items: center;
-        gap: 10px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid #f1f5f9;
+        gap: 12px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        background: #f8fafc;
+        border: 1px solid #f1f5f9;
+        transition: background 0.15s;
+    }
+
+    .checkout-item:hover {
+        background: #f1f5f9;
     }
 
     .checkout-item-info {
@@ -295,23 +556,25 @@
     }
 
     .checkout-item-name {
-        font-size: 0.84rem;
-        font-weight: 600;
-        color: #0f172a;
+        font-size: 0.86rem;
+        font-weight: 700;
+        color: var(--text-main);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        margin-bottom: 2px;
     }
 
     .checkout-item-variant {
-        font-size: 0.74rem;
-        color: #475569;
-        font-weight: 500;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        font-weight: 600;
     }
 
     .checkout-item-price {
-        font-size: 0.78rem;
-        color: #64748b;
+        font-size: 0.82rem;
+        color: var(--text-secondary);
+        font-weight: 700;
     }
 
     .checkout-qty-controls {
@@ -321,93 +584,248 @@
     }
 
     .qty-btn {
-        width: 24px;
-        height: 24px;
-        border-radius: 4px;
+        width: 26px;
+        height: 26px;
+        border-radius: 6px;
         border: 1px solid #cbd5e1;
         background: #ffffff;
-        color: #0f172a;
-        font-size: 0.85rem;
-        font-weight: 600;
+        color: var(--text-main);
+        font-size: 0.9rem;
+        font-weight: 700;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        transition: all 0.15s;
     }
 
     .qty-btn:hover {
-        background: #f1f5f9;
+        background: #0f172a;
+        color: #ffffff;
+        border-color: #0f172a;
     }
 
     .qty-val {
-        font-size: 0.84rem;
-        font-weight: 600;
-        min-width: 18px;
+        font-size: 0.88rem;
+        font-weight: 700;
+        min-width: 22px;
         text-align: center;
     }
 
     .checkout-summary-footer {
-        border-top: 1px solid #e2e8f0;
-        padding-top: 14px;
+        border-top: 1px solid var(--border);
+        padding-top: 16px;
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 10px;
     }
 
     .summary-line {
         display: flex;
         justify-content: space-between;
-        font-size: 0.86rem;
-        color: #475569;
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: var(--text-secondary);
     }
 
     .summary-total {
         display: flex;
         justify-content: space-between;
-        font-size: 1.05rem;
-        font-weight: 700;
-        color: #0f172a;
-        padding-top: 6px;
-        border-top: 1px dashed #e2e8f0;
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--text-main);
+        padding-top: 8px;
+        border-top: 1px dashed var(--border);
+        letter-spacing: -0.02em;
     }
 
     .checkout-submit-btn {
         margin-top: 8px;
         width: 100%;
-        padding: 11px 16px;
-        border-radius: 8px;
+        padding: 13px 18px;
+        border-radius: 10px;
         border: none;
-        background: #0f172a;
+        background: #0b1120;
         color: #ffffff;
-        font-size: 0.92rem;
-        font-weight: 600;
+        font-size: 0.95rem;
+        font-weight: 800;
         cursor: pointer;
-        transition: background-color 0.15s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-shadow: 0 4px 12px rgba(11, 17, 32, 0.25);
+        transition: all 0.2s ease;
     }
 
-    .checkout-submit-btn:hover {
+    .checkout-submit-btn:hover:not(:disabled) {
         background: #1e293b;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(11, 17, 32, 0.35);
     }
 
     .checkout-submit-btn:disabled {
         background: #94a3b8;
         cursor: not-allowed;
+        box-shadow: none;
+        transform: none;
     }
 
     .checkout-msg {
-        font-size: 0.8rem;
-        text-align: center;
+        font-size: 0.84rem;
+        text-align: left;
+        padding: 10px 14px;
+        border-radius: 8px;
+        display: none;
+        line-height: 1.45;
+        font-weight: 600;
+    }
+
+    .checkout-msg-success {
         color: #047857;
         background: #ecfdf5;
-        padding: 8px;
-        border-radius: 6px;
+        border: 1px solid #a7f3d0;
+    }
+
+    .checkout-msg-error {
+        color: #991b1b;
+        background: #fef2f2;
+        border: 1.5px solid #f87171;
+    }
+
+    /* Scanner Toast */
+    .scanner-toast {
+        position: fixed;
+        bottom: 28px;
+        right: 28px;
+        z-index: 10000;
+        padding: 14px 22px;
+        border-radius: 12px;
+        font-size: 0.92rem;
+        font-weight: 700;
+        box-shadow: var(--shadow-xl);
         display: none;
+        animation: slideUp 0.2s ease-out;
+    }
+
+    @keyframes slideUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    .toast-success {
+        background: #0f172a;
+        color: #f8fafc;
+        border-left: 5px solid #22c55e;
+    }
+
+    .toast-error {
+        background: #991b1b;
+        color: #ffffff;
+        border-left: 5px solid #f87171;
+    }
+
+    /* Minimalist Checkout Loading & Success Overlay */
+    .checkout-status-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(11, 17, 32, 0.55);
+        backdrop-filter: blur(5px);
+        z-index: 100000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        animation: statusFadeIn 0.2s ease-out;
+    }
+
+    @keyframes statusFadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .checkout-status-card {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 34px 38px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-width: 280px;
+        max-width: 360px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+        text-align: center;
+        animation: statusPop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes statusPop {
+        from { transform: scale(0.85); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+
+    /* Loading Spinner */
+    .status-spinner {
+        width: 54px;
+        height: 54px;
+        border: 4px solid #e2e8f0;
+        border-top-color: #0f172a;
+        border-radius: 50%;
+        animation: statusSpin 0.75s linear infinite;
+        margin-bottom: 16px;
+    }
+
+    @keyframes statusSpin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Checkmark Icon Container */
+    .status-check-wrap {
+        width: 64px;
+        height: 64px;
+        display: none;
+        margin-bottom: 16px;
+        animation: statusPop 0.3s ease-out;
+    }
+
+    .status-title {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: var(--text-main);
+        margin-bottom: 6px;
+    }
+
+    .status-subtitle {
+        font-size: 0.88rem;
+        color: var(--text-muted);
+        font-weight: 600;
     }
 </style>
 
 <div class="pos-layout">
     <!-- Left: Search Bar + Product Cards Grid + Pagination -->
     <div>
+        <!-- Plug-and-Play Scanner Bar -->
+        <div class="scanner-bar-wrap">
+            <div class="scanner-input-container">
+                <div class="scanner-icon-badge" title="Plug-and-play barcode scanner active">📷</div>
+                <input
+                    type="text"
+                    id="posBarcodeInput"
+                    class="scanner-input"
+                    placeholder="Scan Master Code with plug-and-play scanner or type barcode..."
+                    autocomplete="off"
+                    autofocus
+                >
+                <button type="button" id="posBarcodeSubmitBtn" class="scanner-btn">+ Add Scanned Item</button>
+            </div>
+            <div class="scanner-live-badge">
+                <span class="pulse-dot"></span>
+                <span>Plug &amp; Play Scanner Ready</span>
+            </div>
+        </div>
+
+        <div id="scannerToast" class="scanner-toast"></div>
+
         <div class="catalog-toolbar">
             <form method="GET" action="" class="search-form">
                 {% if selected_category and selected_category != 'all' %}
@@ -436,7 +854,12 @@
                 data-price="{{ item.selling_price }}"
                 data-image="{{ item.display_image }}"
             >
-                <div class="product-image-wrap">
+                <div class="product-image-wrap" style="position: relative;">
+                    {% if item.total_stock <= 0 %}
+                        <span class="stock-badge-out">OUT OF STOCK</span>
+                    {% elif item.total_stock <= 5 %}
+                        <span class="stock-badge-low">Low Stock: {{ item.total_stock }}</span>
+                    {% endif %}
                     {% if item.display_image %}
                         <img
                             src="{{ item.display_image }}"
@@ -454,11 +877,13 @@
                         <label class="variant-label">Choose Variant</label>
                         <select class="variant-select js-variant-select">
                             {% for v in item.variants.all %}
-                                <option value="{{ v.name }}" data-stock="{{ v.stock }}" {% if v.stock == 0 %}disabled{% endif %}>
-                                    {{ v.name }} (Stock: {{ v.stock }})
+                                <option value="{{ v.name }}" data-stock="{{ v.stock }}">
+                                    {{ v.name }} {% if v.stock <= 0 %}(OUT OF STOCK: 0){% else %}(Stock: {{ v.stock }}){% endif %}
                                 </option>
                             {% empty %}
-                                <option value="Standard">Standard (Stock: {{ item.quantity }})</option>
+                                <option value="Standard" data-stock="{{ item.quantity }}">
+                                    Standard {% if item.quantity <= 0 %}(OUT OF STOCK: 0){% else %}(Stock: {{ item.quantity }}){% endif %}
+                                </option>
                             {% endfor %}
                         </select>
                     </div>
@@ -507,6 +932,15 @@
             <button type="button" class="clear-cart-btn" id="clearCartBtn">Clear</button>
         </div>
 
+        <!-- High Visibility Cashier Out-of-Stock Alert Box -->
+        <div id="cashierAlertBox" class="cashier-alert-box" style="display: none;">
+            <div class="cashier-alert-header">
+                <span class="cashier-alert-title" id="cashierAlertTitle">⚠️ OUT OF STOCK ALERT</span>
+                <button type="button" class="cashier-alert-close" onclick="hideCashierStockAlert()" title="Close">&times;</button>
+            </div>
+            <div class="cashier-alert-body" id="cashierAlertBody"></div>
+        </div>
+
         <div class="checkout-items" id="checkoutItemsContainer">
             <div class="checkout-empty">Choose a variant and click "+ Add" on a product card.</div>
         </div>
@@ -521,13 +955,49 @@
                 <span id="summaryTotalAmount">&#8369;0.00</span>
             </div>
 
+            <!-- Customer & Payment Fields for Sales Record -->
+            <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px;">
+                <div>
+                    <label style="font-size: 0.72rem; font-weight: 600; color: #64748b; text-transform: uppercase;">Customer Name</label>
+                    <input type="text" id="posCustomerName" class="form-input" placeholder="Walk-in Customer (optional)" style="padding: 7px 10px; font-size: 0.82rem; border-radius: 6px; border: 1px solid #cbd5e1; width: 100%; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="font-size: 0.72rem; font-weight: 600; color: #64748b; text-transform: uppercase;">Payment Method</label>
+                    <select id="posPaymentMethod" class="form-select" style="padding: 7px 10px; font-size: 0.82rem; border-radius: 6px; border: 1px solid #cbd5e1; width: 100%; box-sizing: border-box; background: #ffffff;">
+                        <option value="Cash">💵 Cash</option>
+                        <option value="GCash">📱 GCash</option>
+                        <option value="Maya">💳 Maya</option>
+                        <option value="Card">💳 Credit / Debit Card</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="checkout-msg" id="checkoutSuccessMsg">Checkout completed!</div>
 
             <button type="button" class="checkout-submit-btn" id="checkoutSubmitBtn" disabled>
-                Checkout
+                Checkout &amp; Record Sale
             </button>
         </div>
     </aside>
+</div>
+
+<!-- ================= MINIMALIST CHECKOUT LOADING & SUCCESS OVERLAY ================= -->
+<div class="checkout-status-overlay" id="checkoutStatusOverlay">
+    <div class="checkout-status-card">
+        <!-- 1. Spinner (during processing) -->
+        <div class="status-spinner" id="statusSpinner"></div>
+
+        <!-- 2. Checkmark Icon (when successful) -->
+        <div class="status-check-wrap" id="statusCheckWrap">
+            <svg viewBox="0 0 52 52" style="width: 100%; height: 100%;">
+                <circle cx="26" cy="26" r="25" fill="#22c55e" />
+                <path fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" d="M14 27l8 8 16-17"/>
+            </svg>
+        </div>
+
+        <div class="status-title" id="statusTitle">Processing Checkout...</div>
+        <div class="status-subtitle" id="statusSubtitle">Recording transaction to sales history...</div>
+    </div>
 </div>
 
 <script>
@@ -539,6 +1009,22 @@ document.addEventListener('DOMContentLoaded', function () {
     const clearBtn = document.getElementById('clearCartBtn');
     const submitBtn = document.getElementById('checkoutSubmitBtn');
     const successMsg = document.getElementById('checkoutSuccessMsg');
+
+    const cashierAlertBox = document.getElementById('cashierAlertBox');
+    const cashierAlertTitle = document.getElementById('cashierAlertTitle');
+    const cashierAlertBody = document.getElementById('cashierAlertBody');
+
+    window.hideCashierStockAlert = function () {
+        if (cashierAlertBox) cashierAlertBox.style.display = 'none';
+    };
+
+    function showCashierStockAlert(title, htmlContent) {
+        if (!cashierAlertBox) return;
+        if (cashierAlertTitle) cashierAlertTitle.innerHTML = title;
+        if (cashierAlertBody) cashierAlertBody.innerHTML = htmlContent;
+        cashierAlertBox.style.display = 'block';
+        cashierAlertBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
 
     let cart = [];
     try {
@@ -554,8 +1040,86 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function escapeHtml(str) {
         const div = document.createElement('div');
-        div.textContent = str;
+        div.textContent = str || '';
         return div.innerHTML;
+    }
+
+    // --- Audio Feedback for Cashier & Scanner ---
+    function playBeep(isSuccess) {
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return;
+            const audioCtx = new AudioContext();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            if (isSuccess) {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime); // High pitch POS beep
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.12);
+            } else {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(200, audioCtx.currentTime); // Low warning buzz
+                gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.28);
+            }
+        } catch (e) {
+            // Audio context policy
+        }
+    }
+
+    // --- Minimalist Loading & Checkmark Overlay Logic ---
+    const statusOverlay = document.getElementById('checkoutStatusOverlay');
+    const statusSpinner = document.getElementById('statusSpinner');
+    const statusCheckWrap = document.getElementById('statusCheckWrap');
+    const statusTitle = document.getElementById('statusTitle');
+    const statusSubtitle = document.getElementById('statusSubtitle');
+
+    function showCheckoutLoading() {
+        if (!statusOverlay) return;
+        statusSpinner.style.display = 'block';
+        statusCheckWrap.style.display = 'none';
+        statusTitle.textContent = 'Processing Checkout...';
+        statusTitle.style.color = '#0f172a';
+        statusSubtitle.textContent = 'Saving order & recording to sales...';
+        statusOverlay.style.display = 'flex';
+    }
+
+    function showCheckoutSuccess(amount, orderNumber) {
+        if (!statusOverlay) return;
+        statusSpinner.style.display = 'none';
+        statusCheckWrap.style.display = 'block';
+        statusTitle.textContent = 'Transaction Successful!';
+        statusTitle.style.color = '#16a34a';
+        const numText = orderNumber ? ' #' + orderNumber : '';
+        statusSubtitle.textContent = '\u2713 Naitala sa Sales' + numText + ' \u2022 \u20B1' + amount;
+        statusOverlay.style.display = 'flex';
+
+        setTimeout(function () {
+            window.location.reload();
+        }, 1300);
+    }
+
+    function hideCheckoutStatus() {
+        if (statusOverlay) statusOverlay.style.display = 'none';
+    }
+
+    // --- Scanner Toast Notification ---
+    const toastEl = document.getElementById('scannerToast');
+    let toastTimer = null;
+    function showScannerToast(msg, isSuccess) {
+        if (!toastEl) return;
+        toastEl.className = 'scanner-toast ' + (isSuccess ? 'toast-success' : 'toast-error');
+        toastEl.textContent = msg;
+        toastEl.style.display = 'block';
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () {
+            toastEl.style.display = 'none';
+        }, 3200);
     }
 
     function renderCart() {
@@ -574,11 +1138,12 @@ document.addEventListener('DOMContentLoaded', function () {
             const lineTotal = item.price * item.qty;
             totalQty += item.qty;
             totalPrice += lineTotal;
+            const maxInfo = item.maxStock !== undefined ? '<span style="color:#64748b; font-size:0.7rem; margin-left:6px;">(Available: ' + item.maxStock + ')</span>' : '';
             return (
                 '<div class="checkout-item">' +
                     '<div class="checkout-item-info">' +
                         '<div class="checkout-item-name">' + escapeHtml(item.name) + '</div>' +
-                        '<div class="checkout-item-variant">Variant: ' + escapeHtml(item.variant || 'Standard') + '</div>' +
+                        '<div class="checkout-item-variant">Variant: ' + escapeHtml(item.variant || 'Standard') + maxInfo + '</div>' +
                         '<div class="checkout-item-price">&#8369;' + item.price.toFixed(2) + ' &times; ' + item.qty + ' = <strong>&#8369;' + lineTotal.toFixed(2) + '</strong></div>' +
                     '</div>' +
                     '<div class="checkout-qty-controls">' +
@@ -595,6 +1160,31 @@ document.addEventListener('DOMContentLoaded', function () {
         submitBtn.disabled = false;
     }
 
+    // --- Dynamic Card Button & Out-of-Stock Styling ---
+    function updateCardBtnState(selectEl) {
+        const card = selectEl.closest('.product-card');
+        if (!card) return;
+        const addBtn = card.querySelector('.js-add-btn');
+        if (!addBtn) return;
+        const selectedOpt = selectEl.options[selectEl.selectedIndex];
+        const stock = selectedOpt ? parseInt(selectedOpt.getAttribute('data-stock') || '0', 10) : 0;
+        if (stock <= 0) {
+            addBtn.textContent = 'Out of Stock';
+            addBtn.classList.add('btn-out-of-stock');
+        } else {
+            addBtn.textContent = '+ Add';
+            addBtn.classList.remove('btn-out-of-stock');
+        }
+    }
+
+    document.querySelectorAll('.js-variant-select').forEach(function (selectEl) {
+        updateCardBtnState(selectEl);
+        selectEl.addEventListener('change', function () {
+            updateCardBtnState(selectEl);
+        });
+    });
+
+    // --- Add Button Handler (With 0 Stock Prevention) ---
     document.querySelectorAll('.js-add-btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
             const card = btn.closest('.product-card');
@@ -605,12 +1195,37 @@ document.addEventListener('DOMContentLoaded', function () {
             const price = parseFloat(card.getAttribute('data-price') || '0');
             const image = card.getAttribute('data-image');
             const selectEl = card.querySelector('.js-variant-select');
+            const selectedOpt = selectEl ? selectEl.options[selectEl.selectedIndex] : null;
+            const stock = selectedOpt ? parseInt(selectedOpt.getAttribute('data-stock') || '0', 10) : 0;
             const variant = selectEl ? selectEl.value : 'Standard';
-            const cartKey = String(id) + '::' + String(variant);
 
+            // 1. Check if stock is 0
+            if (stock <= 0) {
+                playBeep(false);
+                showCashierStockAlert(
+                    '⚠️ OUT OF STOCK',
+                    'Hindi maaaring i-add o i-checkout ang <strong>' + escapeHtml(name) + '</strong> (' + escapeHtml(variant) + ') dahil <strong>0 na ang stocks</strong> sa inventory!'
+                );
+                showScannerToast('⚠️ OUT OF STOCK: Walang stocks ang ' + name + ' (' + variant + ')!', false);
+                return;
+            }
+
+            const cartKey = String(id) + '::' + String(variant);
             const existing = cart.find(function (c) { return c.key === cartKey; });
+
+            // 2. Check if requested quantity exceeds stock
             if (existing) {
+                if (existing.qty >= stock) {
+                    playBeep(false);
+                    showCashierStockAlert(
+                        '⚠️ SAGAD NA ANG STOCKS',
+                        'Hanggang <strong>' + stock + ' pcs</strong> lang ang available na stock para sa <strong>' + escapeHtml(name) + '</strong> (' + escapeHtml(variant) + ').'
+                    );
+                    showScannerToast('⚠️ Kulang ang stock: Hanggang ' + stock + ' pcs lang available!', false);
+                    return;
+                }
                 existing.qty += 1;
+                existing.maxStock = stock;
             } else {
                 cart.push({
                     key: cartKey,
@@ -619,14 +1234,19 @@ document.addEventListener('DOMContentLoaded', function () {
                     variant: variant,
                     price: price,
                     image: image,
-                    qty: 1
+                    qty: 1,
+                    maxStock: stock
                 });
             }
+
+            hideCashierStockAlert();
             successMsg.style.display = 'none';
+            playBeep(true);
             saveCart();
         });
     });
 
+    // --- Cart Quantity Controls (+ / -) ---
     itemsContainer.addEventListener('click', function (e) {
         const btn = e.target.closest('.qty-btn');
         if (!btn) return;
@@ -635,12 +1255,24 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!cart[idx]) return;
 
         if (action === 'inc') {
-            cart[idx].qty += 1;
+            const item = cart[idx];
+            if (item.maxStock !== undefined && item.qty >= item.maxStock) {
+                playBeep(false);
+                showCashierStockAlert(
+                    '⚠️ SAGAD NA ANG STOCKS',
+                    'Hanggang <strong>' + item.maxStock + ' pcs</strong> lang ang available sa inventory para sa <strong>' + escapeHtml(item.name) + '</strong> (' + escapeHtml(item.variant || 'Standard') + ').'
+                );
+                showScannerToast('⚠️ Hanggang ' + item.maxStock + ' pcs lang ang available!', false);
+                return;
+            }
+            item.qty += 1;
+            hideCashierStockAlert();
         } else if (action === 'dec') {
             cart[idx].qty -= 1;
             if (cart[idx].qty <= 0) {
                 cart.splice(idx, 1);
             }
+            hideCashierStockAlert();
         }
         saveCart();
     });
@@ -648,14 +1280,24 @@ document.addEventListener('DOMContentLoaded', function () {
     if (clearBtn) {
         clearBtn.addEventListener('click', function () {
             cart = [];
+            hideCashierStockAlert();
             saveCart();
         });
     }
 
+    // --- Checkout Submission with Server Validation & Cashier Alerts ---
     if (submitBtn) {
         submitBtn.addEventListener('click', function () {
             if (!cart.length) return;
             submitBtn.disabled = true;
+
+            const custInput = document.getElementById('posCustomerName');
+            const payInput = document.getElementById('posPaymentMethod');
+            const customerName = (custInput ? custInput.value.trim() : '') || 'Walk-in Customer';
+            const paymentMethod = (payInput ? payInput.value : '') || 'Cash';
+
+            // 1. Show Minimalist Loading Spinner
+            showCheckoutLoading();
 
             fetch('{% url "checkout_api" %}', {
                 method: 'POST',
@@ -663,26 +1305,218 @@ document.addEventListener('DOMContentLoaded', function () {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': '{{ csrf_token }}'
                 },
-                body: JSON.stringify({ items: cart })
+                body: JSON.stringify({
+                    items: cart,
+                    customer_name: customerName,
+                    payment_method: paymentMethod
+                })
             })
-            .then(function (res) { return res.json(); })
-            .then(function (data) {
-                if (data.ok) {
+            .then(function (res) {
+                return res.json().then(function (data) {
+                    return { status: res.status, data: data };
+                });
+            })
+            .then(function (result) {
+                const data = result.data;
+                if (result.status === 200 && data.ok) {
                     cart = [];
                     saveCart();
-                    successMsg.textContent = 'Checkout complete! Total: \u20B1' + data.total_amount;
-                    successMsg.style.display = 'block';
-                    setTimeout(function () { window.location.reload(); }, 800);
+                    hideCashierStockAlert();
+
+                    if (custInput) custInput.value = '';
+
+                    // Play pleasant POS payment sound
+                    playBeep(true);
+
+                    // 2. Transition Spinner to Green Checkmark Icon & auto-reload
+                    showCheckoutSuccess(data.total_amount, data.order_number);
                 } else {
+                    hideCheckoutStatus();
                     submitBtn.disabled = false;
+                    playBeep(false);
+                    const errorMsgHtml = data.errors && data.errors.length
+                        ? data.errors.map(function(e) { return '<li>' + escapeHtml(e) + '</li>'; }).join('')
+                        : escapeHtml(data.error || 'Hindi ma-checkout ang mga item dahil walang sapat na stock.');
+
+                    showCashierStockAlert(
+                        '⚠️ HINDI MA-CHECKOUT ANG ORDER: OUT OF STOCK',
+                        '<strong>Pansin sa Cashier:</strong> May mga produktong walang sapat na stock sa inventory:<ul style="margin: 8px 0 0 18px; padding: 0;">' + errorMsgHtml + '</ul>'
+                    );
+
+                    successMsg.className = 'checkout-msg checkout-msg-error';
+                    successMsg.innerHTML = '<strong>⚠️ HINDI MA-CHECKOUT (OUT OF STOCK):</strong><br>' + (data.errors ? data.errors.join('<br>') : escapeHtml(data.error || 'Error sa checkout'));
+                    successMsg.style.display = 'block';
                 }
             })
-            .catch(function () {
+            .catch(function (err) {
+                hideCheckoutStatus();
                 submitBtn.disabled = false;
+                playBeep(false);
+                successMsg.className = 'checkout-msg checkout-msg-error';
+                successMsg.textContent = '⚠️ Network / Server error: ' + err.message;
+                successMsg.style.display = 'block';
             });
         });
     }
 
     renderCart();
+
+    // --- Scan and Auto-Add to Cart (With Stock Validation & Anti-Double-Scan Protection) ---
+    let lastScannedCode = '';
+    let lastScanTimestamp = 0;
+
+    function handleScanCode(rawCode) {
+        const code = (rawCode || '').trim();
+        if (!code) return;
+
+        // Anti-duplicate protection: prevent duplicate processing if triggered multiple times within 400ms
+        const now = Date.now();
+        if (code === lastScannedCode && (now - lastScanTimestamp) < 400) {
+            return;
+        }
+        lastScannedCode = code;
+        lastScanTimestamp = now;
+
+        fetch('/api/barcode/' + encodeURIComponent(code) + '/')
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                if (data.found) {
+                    const variant = data.variant || 'Standard';
+                    const availableStock = parseInt(data.stock !== undefined ? data.stock : 0, 10);
+
+                    // 1. Check if scanned product is out of stock
+                    if (availableStock <= 0) {
+                        playBeep(false);
+                        showCashierStockAlert(
+                            '⚠️ OUT OF STOCK (SCANNED ITEM)',
+                            'Ang na-scan na Master Code: <code>' + escapeHtml(code) + '</code><br><strong>' + escapeHtml(data.name) + '</strong> (' + escapeHtml(variant) + ') ay <strong>0 na ang stocks</strong> sa inventory at hindi maaaring i-checkout!'
+                        );
+                        showScannerToast('⚠️ OUT OF STOCK: Walang stocks ang ' + data.name + ' (' + variant + ')!', false);
+                        return;
+                    }
+
+                    const cartKey = String(data.id) + '::' + String(variant);
+                    const existing = cart.find(function (c) { return c.key === cartKey; });
+
+                    // 2. Check if adding exceeds available stock
+                    if (existing) {
+                        if (existing.qty >= availableStock) {
+                            playBeep(false);
+                            showCashierStockAlert(
+                                '⚠️ SAGAD NA ANG STOCKS',
+                                'Hanggang <strong>' + availableStock + ' pcs</strong> lang ang available na stock para sa <strong>' + escapeHtml(data.name) + '</strong> (' + escapeHtml(variant) + ').'
+                            );
+                            showScannerToast('⚠️ Kulang ang stock: Hanggang ' + availableStock + ' pcs lang available!', false);
+                            return;
+                        }
+                        existing.qty += 1;
+                        existing.maxStock = availableStock;
+                    } else {
+                        cart.push({
+                            key: cartKey,
+                            id: data.id,
+                            name: data.name,
+                            variant: variant,
+                            price: parseFloat(data.price || 0),
+                            image: data.display_image || '',
+                            qty: 1,
+                            maxStock: availableStock
+                        });
+                    }
+
+                    hideCashierStockAlert();
+                    saveCart();
+                    playBeep(true);
+                    showScannerToast('✓ Scanned: ' + data.name + ' (' + variant + ') added to cart!', true);
+                } else {
+                    playBeep(false);
+                    showCashierStockAlert(
+                        '⚠️ BARCODE NOT FOUND',
+                        'Ang Master Code / Barcode na <code>' + escapeHtml(code) + '</code> ay hindi mahanap sa database ng inventory.'
+                    );
+                    showScannerToast('✕ Master Code "' + code + '" not found in inventory!', false);
+                }
+            })
+            .catch(function (err) {
+                playBeep(false);
+                showScannerToast('✕ Error looking up barcode: ' + err.message, false);
+            });
+    }
+
+    // --- Barcode Input Field Handler ---
+    const posBarcodeInput = document.getElementById('posBarcodeInput');
+    const posBarcodeSubmitBtn = document.getElementById('posBarcodeSubmitBtn');
+
+    if (posBarcodeInput) {
+        posBarcodeInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                e.stopPropagation();
+                scanBuffer = ''; // Clear scanner buffer so global listener doesn't re-trigger
+                const val = posBarcodeInput.value.trim();
+                if (val) {
+                    handleScanCode(val);
+                    posBarcodeInput.value = '';
+                }
+            }
+        });
+    }
+
+    if (posBarcodeSubmitBtn && posBarcodeInput) {
+        posBarcodeSubmitBtn.addEventListener('click', function () {
+            scanBuffer = '';
+            const val = posBarcodeInput.value.trim();
+            if (val) {
+                handleScanCode(val);
+                posBarcodeInput.value = '';
+                posBarcodeInput.focus();
+            }
+        });
+    }
+
+    // --- Global Keypress Listener for Plug-and-Play Scanner ---
+    let scanBuffer = '';
+    let lastKeyTime = Date.now();
+
+    window.addEventListener('keydown', function (e) {
+        const activeEl = document.activeElement;
+
+        // If user is already focused on the barcode input box, let its own keydown handler manage it
+        if (activeEl === posBarcodeInput) {
+            scanBuffer = '';
+            return;
+        }
+
+        const activeTag = activeEl ? activeEl.tagName.toLowerCase() : '';
+        const isSearchOrFormInput = activeEl && (activeTag === 'input' || activeTag === 'textarea');
+
+        const currentTime = Date.now();
+        const diff = currentTime - lastKeyTime;
+        lastKeyTime = currentTime;
+
+        if (e.key === 'Enter') {
+            if (scanBuffer.length >= 3 && diff < 120) {
+                e.preventDefault();
+                handleScanCode(scanBuffer);
+                scanBuffer = '';
+                if (posBarcodeInput) posBarcodeInput.value = '';
+                return;
+            }
+            scanBuffer = '';
+            return;
+        }
+
+        // Only buffer if it's a printable single character
+        if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
+            if (isSearchOrFormInput && diff > 100) {
+                scanBuffer = '';
+                return;
+            }
+            if (diff > 120) {
+                scanBuffer = '';
+            }
+            scanBuffer += e.key;
+        }
+    });
 });
 </script>

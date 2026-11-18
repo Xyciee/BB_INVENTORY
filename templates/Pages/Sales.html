@@ -1,5 +1,894 @@
 {% extends 'Layout/Main.html' %}
 
 {% block content %}
-    {% include 'Layout/CatalogCheckout.html' %}
+<style>
+    .sales-container {
+        max-width: 1340px;
+        margin: 0 auto;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+    }
+
+    /* KPI Metrics Grid */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 16px;
+    }
+
+    .kpi-card {
+        background: #ffffff;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 18px 22px;
+        box-shadow: var(--shadow-xs);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .kpi-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .kpi-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+
+    .kpi-label {
+        font-size: 0.74rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        letter-spacing: 0.6px;
+        text-transform: uppercase;
+    }
+
+    .kpi-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+
+    .kpi-icon-emerald { background: #ecfdf5; color: #059669; }
+    .kpi-icon-blue { background: #eff6ff; color: #2563eb; }
+    .kpi-icon-purple { background: #f5f3ff; color: #7c3aed; }
+    .kpi-icon-amber { background: #fffbeb; color: #d97706; }
+
+    .kpi-value {
+        font-size: 1.7rem;
+        font-weight: 800;
+        color: var(--text-main);
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+        margin-bottom: 4px;
+    }
+
+    .kpi-unit {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        margin-left: 2px;
+    }
+
+    .kpi-sub {
+        font-size: 0.78rem;
+        color: var(--text-light);
+        font-weight: 500;
+    }
+
+    /* Main Sales Card */
+    .sales-card {
+        background: #ffffff;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: var(--shadow-sm);
+    }
+
+    /* Header Bar */
+    .sales-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 22px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .sales-title-group h1 {
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: var(--text-main);
+        letter-spacing: -0.02em;
+        margin-bottom: 3px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .sales-title-group p {
+        font-size: 0.86rem;
+        color: var(--text-muted);
+    }
+
+    .sales-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 9px 18px;
+        border-radius: 9px;
+        font-size: 0.86rem;
+        font-weight: 700;
+        border: 1px solid transparent;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        transition: all 0.15s ease;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .btn-primary {
+        background: #0f172a;
+        color: #ffffff;
+        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
+    }
+
+    .btn-primary:hover {
+        background: #1e293b;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(15, 23, 42, 0.2);
+    }
+
+    .btn-blue {
+        background: #2563eb;
+        color: #ffffff;
+        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-blue:hover {
+        background: #1d4ed8;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+    }
+
+    .btn-outline {
+        background: #ffffff;
+        color: var(--text-secondary);
+        border-color: var(--border);
+    }
+
+    .btn-outline:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+        color: var(--text-main);
+    }
+
+    .btn-danger-soft {
+        background: #fef2f2;
+        color: #dc2626;
+        border: 1px solid #fecaca;
+    }
+
+    .btn-danger-soft:hover {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .btn-sm {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+        border-radius: 7px;
+    }
+
+    /* Filter & Search Toolbar */
+    .filter-bar {
+        background: #f8fafc;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 14px 18px;
+        margin-bottom: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        flex-wrap: wrap;
+    }
+
+    .search-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex: 1;
+        min-width: 280px;
+    }
+
+    .filter-input {
+        flex: 1;
+        padding: 9px 14px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 0.88rem;
+        color: var(--text-main);
+        background: #ffffff;
+        outline: none;
+        transition: all 0.15s ease;
+    }
+
+    .filter-input:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .filter-select {
+        padding: 9px 14px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 0.86rem;
+        font-weight: 600;
+        color: var(--text-main);
+        background: #ffffff;
+        outline: none;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+
+    .filter-select:focus {
+        border-color: #2563eb;
+    }
+
+    /* Orders Table */
+    .table-wrap {
+        overflow-x: auto;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: #ffffff;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+    thead {
+        background-color: #f8fafc;
+        border-bottom: 1px solid var(--border);
+    }
+
+    th {
+        padding: 13px 18px;
+        font-size: 0.74rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        white-space: nowrap;
+    }
+
+    td {
+        padding: 14px 18px;
+        font-size: 0.88rem;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: middle;
+        color: var(--text-main);
+    }
+
+    tr:last-child td {
+        border-bottom: none;
+    }
+
+    tr:hover td {
+        background: #fbfcfe;
+    }
+
+    .order-num-badge {
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #0f172a;
+        background: #f8fafc;
+        padding: 4px 10px;
+        border-radius: 6px;
+        border: 1px solid #cbd5e1;
+        display: inline-block;
+        letter-spacing: 0.3px;
+    }
+
+    .customer-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 700;
+        color: var(--text-main);
+    }
+
+    .pay-badge {
+        font-size: 0.76rem;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        letter-spacing: 0.2px;
+    }
+
+    .pay-cash {
+        background: #ecfdf5;
+        color: #047857;
+        border: 1px solid #a7f3d0;
+    }
+
+    .pay-gcash {
+        background: #eff6ff;
+        color: #1d4ed8;
+        border: 1px solid #bfdbfe;
+    }
+
+    .pay-maya {
+        background: #fffbeb;
+        color: #b45309;
+        border: 1px solid #fde68a;
+    }
+
+    .pay-card {
+        background: #f5f3ff;
+        color: #6d28d9;
+        border: 1px solid #ddd6fe;
+    }
+
+    .items-chips-list {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        max-width: 400px;
+    }
+
+    .item-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.82rem;
+        background: #f8fafc;
+        border: 1px solid var(--border);
+        padding: 3px 8px;
+        border-radius: 6px;
+    }
+
+    .item-chip-name {
+        color: var(--text-secondary);
+        font-weight: 600;
+    }
+
+    .item-chip-qty {
+        font-weight: 800;
+        color: var(--text-main);
+        background: #e2e8f0;
+        padding: 1px 6px;
+        border-radius: 4px;
+        font-size: 0.72rem;
+    }
+
+    .order-total-val {
+        font-size: 1.05rem;
+        font-weight: 800;
+        color: var(--text-main);
+        letter-spacing: -0.01em;
+    }
+
+    .action-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Receipt Modal */
+    .receipt-modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(11, 17, 32, 0.55);
+        backdrop-filter: blur(6px);
+        z-index: 100000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .receipt-modal-overlay.active {
+        display: flex;
+    }
+
+    .receipt-card {
+        background: #ffffff;
+        border-radius: 16px;
+        max-width: 440px;
+        width: 100%;
+        padding: 30px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+        max-height: 90vh;
+        overflow-y: auto;
+        position: relative;
+    }
+
+    .receipt-header {
+        text-align: center;
+        border-bottom: 1.5px dashed #cbd5e1;
+        padding-bottom: 16px;
+        margin-bottom: 16px;
+    }
+
+    .receipt-store-name {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: var(--text-main);
+        letter-spacing: 0.5px;
+    }
+
+    .receipt-sub {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-top: 3px;
+    }
+
+    .receipt-info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        font-size: 0.82rem;
+        color: var(--text-secondary);
+        margin-bottom: 16px;
+        padding-bottom: 14px;
+        border-bottom: 1.5px dashed #cbd5e1;
+    }
+
+    .receipt-table {
+        width: 100%;
+        font-size: 0.82rem;
+        margin-bottom: 16px;
+        border-collapse: collapse;
+    }
+
+    .receipt-table th {
+        font-size: 0.72rem;
+        padding: 6px 4px;
+        border-bottom: 1px solid var(--border);
+        background: transparent;
+        color: var(--text-muted);
+    }
+
+    .receipt-table td {
+        padding: 8px 4px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .receipt-total-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--text-main);
+        padding-top: 12px;
+        border-top: 1.5px dashed #cbd5e1;
+        margin-bottom: 22px;
+        letter-spacing: -0.02em;
+    }
+
+    .receipt-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+
+    /* Print styles for receipt */
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        .receipt-card, .receipt-card * {
+            visibility: visible;
+        }
+        .receipt-card {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            box-shadow: none;
+            padding: 0;
+        }
+        .receipt-actions {
+            display: none !important;
+        }
+    }
+
+    /* Pagination */
+    .pagination-bar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        margin-top: 24px;
+    }
+
+    .page-link {
+        padding: 7px 13px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 0.84rem;
+        font-weight: 700;
+        color: var(--text-main);
+        text-decoration: none;
+        background: #ffffff;
+        transition: all 0.15s ease;
+    }
+
+    .page-link:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+    }
+
+    .page-link.active {
+        background: #0f172a;
+        color: #ffffff;
+        border-color: #0f172a;
+        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
+    }
+</style>
+
+<div class="sales-container">
+    <!-- KPI Summary Metrics Grid -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <span class="kpi-label">Total Sales Revenue</span>
+                <span class="kpi-icon kpi-icon-emerald">💰</span>
+            </div>
+            <div class="kpi-value">&#8369;{{ total_revenue|floatformat:2 }}</div>
+            <div class="kpi-sub">All-time recorded sales</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <span class="kpi-label">Today's Revenue</span>
+                <span class="kpi-icon kpi-icon-blue">📅</span>
+            </div>
+            <div class="kpi-value">&#8369;{{ today_revenue|floatformat:2 }}</div>
+            <div class="kpi-sub">{{ today_orders_count }} orders checked out today</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <span class="kpi-label">Customer Orders</span>
+                <span class="kpi-icon kpi-icon-purple">🧾</span>
+            </div>
+            <div class="kpi-value">{{ total_orders_count }} <span class="kpi-unit">orders</span></div>
+            <div class="kpi-sub">Complete customer sales orders</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <span class="kpi-label">Total Units Sold</span>
+                <span class="kpi-icon kpi-icon-amber">🛍️</span>
+            </div>
+            <div class="kpi-value">{{ total_items_sold }} <span class="kpi-unit">pcs</span></div>
+            <div class="kpi-sub">Total product units dispensed</div>
+        </div>
+    </div>
+
+    <!-- Main Sales Card -->
+    <div class="sales-card">
+        <!-- Header -->
+        <div class="sales-header">
+            <div class="sales-title-group">
+                <h1>
+                    <span>📈 Sales Records &amp; Order History</span>
+                </h1>
+                <p>Naitatala ang bawat transaksyon, customer name, payment method, at resibo sa POS.</p>
+            </div>
+            <div class="sales-header-actions">
+                <a href="{% url 'analytics' %}" class="btn btn-primary">
+                    <span>🛒 Open POS / Catalog</span>
+                </a>
+                <a href="{% url 'export_sales_csv' %}" class="btn btn-blue">
+                    <span>📊 Export Sales CSV</span>
+                </a>
+                <a href="{% url 'inventory' %}" class="btn btn-outline">
+                    <span>📦 Inventory Database</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Filter & Search Toolbar -->
+        <form method="GET" action="{% url 'sales' %}" class="filter-bar">
+            <div class="search-group">
+                <input
+                    type="search"
+                    name="q"
+                    class="filter-input"
+                    placeholder="Search by Order #, Customer Name, or Product..."
+                    value="{{ search_query|default:'' }}"
+                >
+                <button type="submit" class="btn btn-primary btn-sm">Search</button>
+                {% if search_query or date_filter != 'all' or payment_filter != 'all' %}
+                    <a href="{% url 'sales' %}" class="btn btn-outline btn-sm">Clear</a>
+                {% endif %}
+            </div>
+
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <!-- Date Filter -->
+                <select name="date" class="filter-select" onchange="this.form.submit()">
+                    <option value="all" {% if date_filter == 'all' %}selected{% endif %}>📅 All Dates</option>
+                    <option value="today" {% if date_filter == 'today' %}selected{% endif %}>Today</option>
+                    <option value="yesterday" {% if date_filter == 'yesterday' %}selected{% endif %}>Yesterday</option>
+                    <option value="this_week" {% if date_filter == 'this_week' %}selected{% endif %}>This Week</option>
+                    <option value="this_month" {% if date_filter == 'this_month' %}selected{% endif %}>This Month</option>
+                </select>
+
+                <!-- Payment Method Filter -->
+                <select name="payment" class="filter-select" onchange="this.form.submit()">
+                    <option value="all" {% if payment_filter == 'all' %}selected{% endif %}>💳 All Payment Methods</option>
+                    <option value="Cash" {% if payment_filter == 'Cash' %}selected{% endif %}>💵 Cash</option>
+                    <option value="GCash" {% if payment_filter == 'GCash' %}selected{% endif %}>📱 GCash</option>
+                    <option value="Maya" {% if payment_filter == 'Maya' %}selected{% endif %}>💳 Maya</option>
+                    <option value="Card" {% if payment_filter == 'Card' %}selected{% endif %}>💳 Card</option>
+                </select>
+            </div>
+        </form>
+
+        <!-- Orders Table -->
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="min-width: 140px;">Order #</th>
+                        <th style="min-width: 150px;">Date &amp; Time</th>
+                        <th style="min-width: 160px;">Customer</th>
+                        <th style="min-width: 120px;">Payment</th>
+                        <th style="min-width: 290px;">Items Ordered</th>
+                        <th style="min-width: 90px;">Total Qty</th>
+                        <th style="min-width: 120px;">Total Amount</th>
+                        <th style="min-width: 140px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td>
+                            <span class="order-num-badge">#{{ order.order_number }}</span>
+                        </td>
+                        <td>
+                            <div style="font-weight: 700; color: var(--text-main);">{{ order.created_at|date:"M d, Y" }}</div>
+                            <div style="font-size: 0.78rem; color: var(--text-muted);">{{ order.created_at|date:"h:i A" }}</div>
+                        </td>
+                        <td>
+                            <div class="customer-pill">
+                                <span>👤</span>
+                                <span>{{ order.customer_name }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            {% if order.payment_method == 'Cash' %}
+                                <span class="pay-badge pay-cash">💵 Cash</span>
+                            {% elif order.payment_method == 'GCash' %}
+                                <span class="pay-badge pay-gcash">📱 GCash</span>
+                            {% elif order.payment_method == 'Maya' %}
+                                <span class="pay-badge pay-maya">💳 Maya</span>
+                            {% else %}
+                                <span class="pay-badge pay-card">💳 {{ order.payment_method }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="items-chips-list">
+                                {% for itm in order.items_list %}
+                                <div class="item-chip">
+                                    <span class="item-chip-name">
+                                        {{ itm.product.name }}
+                                        {% if itm.variant_name and itm.variant_name != 'Standard' %}
+                                            <span style="color: var(--text-muted); font-size: 0.75rem;">({{ itm.variant_name }})</span>
+                                        {% endif %}
+                                    </span>
+                                    <span class="item-chip-qty">{{ itm.quantity_sold }} pcs</span>
+                                    <span style="color: var(--text-muted); font-size: 0.75rem;">&#8369;{{ itm.total_amount }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </td>
+                        <td>
+                            <strong style="font-size: 0.92rem;">{{ order.total_items }} pcs</strong>
+                        </td>
+                        <td>
+                            <span class="order-total-val">&#8369;{{ order.total_amount }}</span>
+                        </td>
+                        <td>
+                            <div class="action-group">
+                                <button type="button" class="btn btn-outline btn-sm js-view-receipt-btn"
+                                    data-order-num="{{ order.order_number }}"
+                                    data-customer="{{ order.customer_name }}"
+                                    data-date="{{ order.created_at|date:'M d, Y h:i A' }}"
+                                    data-payment="{{ order.payment_method }}"
+                                    data-total="{{ order.total_amount }}"
+                                    data-items="{{ order.items_json }}">
+                                    🧾 Receipt
+                                </button>
+                                <form method="POST" action="{% url 'void_sales_order' order.id %}" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger-soft btn-sm"
+                                        onclick="return confirm('Sigurado ka bang nais mong i-void ang Order #{{ order.order_number }}? Ibabalik ang mga stocks sa imbentaryo.');"
+                                        title="Void order and restore stock">
+                                        ⛔ Void
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 48px 16px;">
+                            <div style="font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; color: var(--text-main);">Walang sales record na nahanap</div>
+                            <p style="font-size: 0.88rem;">Mag-checkout ng produkto sa <strong>POS / Catalog</strong> para magkaroon ng sales history.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.paginator.num_pages > 1 %}
+        <div class="pagination-bar">
+            {% if page_obj.has_previous %}
+            <a href="?date={{ date_filter }}&amp;payment={{ payment_filter }}&amp;q={{ search_query }}&amp;page={{ page_obj.previous_page_number }}"
+                class="page-link">&laquo; Prev</a>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+            <a href="?date={{ date_filter }}&amp;payment={{ payment_filter }}&amp;q={{ search_query }}&amp;page={{ num }}"
+                class="page-link {% if page_obj.number == num %}active{% endif %}">
+                {{ num }}
+            </a>
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <a href="?date={{ date_filter }}&amp;payment={{ payment_filter }}&amp;q={{ search_query }}&amp;page={{ page_obj.next_page_number }}"
+                class="page-link">Next &raquo;</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ================= RECEIPT VIEW MODAL ================= -->
+<div class="receipt-modal-overlay" id="receiptModal">
+    <div class="receipt-card">
+        <div class="receipt-header">
+            <div class="receipt-store-name">BABY BRIGHT</div>
+            <div class="receipt-sub">Point of Sale • Official Sales Receipt</div>
+        </div>
+
+        <div class="receipt-info-grid">
+            <div>
+                <div><strong>Order #:</strong> <span id="rOrderNum">--</span></div>
+                <div><strong>Customer:</strong> <span id="rCustomer">--</span></div>
+            </div>
+            <div style="text-align: right;">
+                <div><strong>Date:</strong> <span id="rDate">--</span></div>
+                <div><strong>Payment:</strong> <span id="rPayment">--</span></div>
+            </div>
+        </div>
+
+        <table class="receipt-table">
+            <thead>
+                <tr>
+                    <th style="text-align: left;">Item &amp; Variant</th>
+                    <th style="text-align: center;">Qty</th>
+                    <th style="text-align: right;">Price</th>
+                    <th style="text-align: right;">Total</th>
+                </tr>
+            </thead>
+            <tbody id="receiptItemsBody">
+                <!-- Dynamically rendered -->
+            </tbody>
+        </table>
+
+        <div class="receipt-total-row">
+            <span>Total Amount Paid</span>
+            <span id="rTotalAmount">&#8369;0.00</span>
+        </div>
+
+        <div style="text-align: center; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 22px; line-height: 1.5;">
+            Salamat sa inyong pagtangkilik!<br>Order officially recorded in Baby Bright Sales Database.
+        </div>
+
+        <div class="receipt-actions">
+            <button type="button" class="btn btn-outline" onclick="closeReceiptModal()">Close</button>
+            <button type="button" class="btn btn-primary" onclick="window.print()">🖨️ Print Receipt</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const receiptModal = document.getElementById('receiptModal');
+    const rOrderNum = document.getElementById('rOrderNum');
+    const rCustomer = document.getElementById('rCustomer');
+    const rDate = document.getElementById('rDate');
+    const rPayment = document.getElementById('rPayment');
+    const rTotalAmount = document.getElementById('rTotalAmount');
+    const receiptItemsBody = document.getElementById('receiptItemsBody');
+
+    function openReceiptModal(data) {
+        if (!receiptModal) return;
+        rOrderNum.textContent = '#' + data.orderNum;
+        rCustomer.textContent = data.customer || 'Walk-in Customer';
+        rDate.textContent = data.date || '';
+        rPayment.textContent = data.payment || 'Cash';
+        rTotalAmount.innerHTML = '&#8369;' + parseFloat(data.total || 0).toFixed(2);
+
+        receiptItemsBody.innerHTML = '';
+        if (data.items && data.items.length) {
+            data.items.forEach(function (itm) {
+                const tr = document.createElement('tr');
+                const vText = itm.variant && itm.variant !== 'Standard' ? '<br><small style="color:var(--text-muted);">(' + itm.variant + ')</small>' : '';
+                tr.innerHTML = (
+                    '<td style="text-align: left;"><strong>' + itm.name + '</strong>' + vText + '</td>' +
+                    '<td style="text-align: center;">' + itm.qty + '</td>' +
+                    '<td style="text-align: right;">&#8369;' + parseFloat(itm.price || 0).toFixed(2) + '</td>' +
+                    '<td style="text-align: right;"><strong>&#8369;' + parseFloat(itm.total || 0).toFixed(2) + '</strong></td>'
+                );
+                receiptItemsBody.appendChild(tr);
+            });
+        }
+
+        receiptModal.classList.add('active');
+    }
+
+    function closeReceiptModal() {
+        if (receiptModal) receiptModal.classList.remove('active');
+    }
+
+    if (receiptModal) {
+        receiptModal.addEventListener('click', function (e) {
+            if (e.target === receiptModal) closeReceiptModal();
+        });
+    }
+
+    document.querySelectorAll('.js-view-receipt-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            let items = [];
+            try {
+                items = JSON.parse(btn.getAttribute('data-items') || '[]');
+            } catch (e) {
+                items = [];
+            }
+            openReceiptModal({
+                orderNum: btn.getAttribute('data-order-num'),
+                customer: btn.getAttribute('data-customer'),
+                date: btn.getAttribute('data-date'),
+                payment: btn.getAttribute('data-payment'),
+                total: btn.getAttribute('data-total'),
+                items: items
+            });
+        });
+    });
+</script>
 {% endblock %}
