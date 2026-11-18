@@ -60,10 +60,25 @@
         font-size: 1.15rem;
     }
 
-    .kpi-icon-blue { background: #eff6ff; color: #2563eb; }
-    .kpi-icon-emerald { background: #ecfdf5; color: #059669; }
-    .kpi-icon-amber { background: #fffbeb; color: #d97706; }
-    .kpi-icon-red { background: #fef2f2; color: #dc2626; }
+    .kpi-icon-blue {
+        background: #eff6ff;
+        color: #2563eb;
+    }
+
+    .kpi-icon-emerald {
+        background: #ecfdf5;
+        color: #059669;
+    }
+
+    .kpi-icon-amber {
+        background: #fffbeb;
+        color: #d97706;
+    }
+
+    .kpi-icon-red {
+        background: #fef2f2;
+        color: #dc2626;
+    }
 
     .kpi-value {
         font-size: 1.7rem;
@@ -485,8 +500,15 @@
     }
 
     @keyframes modalScaleIn {
-        from { transform: scale(0.95); opacity: 0; }
-        to { transform: scale(1); opacity: 1; }
+        from {
+            transform: scale(0.95);
+            opacity: 0;
+        }
+
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
     }
 
     .modal-header {
@@ -695,7 +717,8 @@
                 <span class="kpi-label">Low Stock Alert</span>
                 <span class="kpi-icon kpi-icon-amber">⚠️</span>
             </div>
-            <div class="kpi-value" style="color: #d97706;">{{ low_stock_count|default:"0" }} <span class="kpi-unit">items</span></div>
+            <div class="kpi-value" style="color: #d97706;">{{ low_stock_count|default:"0" }} <span
+                    class="kpi-unit">items</span></div>
             <div class="kpi-sub">Items with &le; 5 units remaining</div>
         </div>
 
@@ -704,7 +727,8 @@
                 <span class="kpi-label">Out of Stock</span>
                 <span class="kpi-icon kpi-icon-red">🚫</span>
             </div>
-            <div class="kpi-value" style="color: #dc2626;">{{ out_of_stock_count|default:"0" }} <span class="kpi-unit">items</span></div>
+            <div class="kpi-value" style="color: #dc2626;">{{ out_of_stock_count|default:"0" }} <span
+                    class="kpi-unit">items</span></div>
             <div class="kpi-sub">Zero stock / cannot checkout</div>
         </div>
     </div>
@@ -729,7 +753,8 @@
                 <button type="button" class="btn btn-blue" onclick="openImportModal()">
                     <span>📊 Import Excel / CSV</span>
                 </button>
-                <a href="{% url 'download_sample_template' %}" class="btn btn-outline" title="Download Excel template format">
+                <a href="{% url 'download_sample_template' %}" class="btn btn-outline"
+                    title="Download Excel template format">
                     <span>⬇ Sample Template</span>
                 </a>
             </div>
@@ -780,7 +805,8 @@
                             </div>
                         </td>
                         <td>
-                            <span class="master-code-badge" title="Click to copy Master Code" onclick="copyMasterCode('{{ item.barcode }}', this)">
+                            <span class="master-code-badge" title="Click to copy Master Code"
+                                onclick="copyMasterCode('{{ item.barcode }}', this)">
                                 <span>{{ item.barcode|default:"—" }}</span>
                                 <span class="copy-icon">📋</span>
                             </span>
@@ -790,14 +816,16 @@
                                 {% for v in item.variants.all %}
                                 <div class="variant-stock-item">
                                     <span class="variant-stock-name">{{ v.name }}:</span>
-                                    <span class="stock-badge {% if v.stock == 0 %}stock-badge-zero{% elif v.stock <= 5 %}stock-badge-low{% endif %}">
+                                    <span
+                                        class="stock-badge {% if v.stock == 0 %}stock-badge-zero{% elif v.stock <= 5 %}stock-badge-low{% endif %}">
                                         ● {{ v.stock }} pcs
                                     </span>
                                 </div>
                                 {% empty %}
                                 <div class="variant-stock-item">
                                     <span class="variant-stock-name">Standard:</span>
-                                    <span class="stock-badge {% if item.quantity == 0 %}stock-badge-zero{% elif item.quantity <= 5 %}stock-badge-low{% endif %}">
+                                    <span
+                                        class="stock-badge {% if item.quantity == 0 %}stock-badge-zero{% elif item.quantity <= 5 %}stock-badge-low{% endif %}">
                                         ● {{ item.quantity }} pcs
                                     </span>
                                 </div>
@@ -831,8 +859,11 @@
                     {% empty %}
                     <tr>
                         <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 48px 16px;">
-                            <div style="font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; color: var(--text-main);">Walang produkto sa imbentaryo</div>
-                            <p style="font-size: 0.88rem;">Mag-click sa <strong>+ Add Product</strong> o <strong>Import Excel / CSV</strong> para magsimula.</p>
+                            <div
+                                style="font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; color: var(--text-main);">
+                                Walang produkto sa imbentaryo</div>
+                            <p style="font-size: 0.88rem;">Mag-click sa <strong>+ Add Product</strong> o <strong>Import
+                                    Excel / CSV</strong> para magsimula.</p>
                         </td>
                     </tr>
                     {% endfor %}
@@ -883,11 +914,13 @@
             <div class="form-group">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                     <label for="barcodeInput" style="margin-bottom: 0;">Master Code / Barcode</label>
-                    <button type="button" class="btn btn-outline btn-sm" style="padding: 3px 9px; font-size: 0.74rem;" onclick="generateRandomBarcode()">🎲 Auto-Generate</button>
+                    <button type="button" class="btn btn-outline btn-sm" style="padding: 3px 9px; font-size: 0.74rem;"
+                        onclick="generateRandomBarcode()">🎲 Auto-Generate</button>
                 </div>
                 <input type="text" id="barcodeInput" name="barcode" class="form-input"
                     placeholder="e.g. 8858842063187 (or click Auto-Generate)" autocomplete="off">
-                <span class="form-hint">Ito ang ginagamit ng plug-and-play barcode scanner para sa auto add-to-cart sa POS.</span>
+                <span class="form-hint">Ito ang ginagamit ng plug-and-play barcode scanner para sa auto add-to-cart sa
+                    POS.</span>
             </div>
 
             <!-- Product Name -->
@@ -935,8 +968,10 @@
             <div class="form-group" style="margin-top: 10px;">
                 <div class="variants-header">
                     <div>
-                        <label style="font-weight: 700; color: var(--text-main);">Product Variants &amp; Stock Quantity</label>
-                        <div style="font-size: 0.76rem; color: var(--text-muted);">Dito i-adjust o i-add ang stock para sa bawat variant gamit ang stepper:</div>
+                        <label style="font-weight: 700; color: var(--text-main);">Product Variants &amp; Stock
+                            Quantity</label>
+                        <div style="font-size: 0.76rem; color: var(--text-muted);">Dito i-adjust o i-add ang stock para
+                            sa bawat variant gamit ang stepper:</div>
                     </div>
                     <button type="button" class="btn btn-outline btn-sm" id="addVariantRowBtn">+ Add Variant</button>
                 </div>
@@ -979,14 +1014,19 @@
         <form method="POST" action="{% url 'import_inventory' %}" enctype="multipart/form-data">
             {% csrf_token %}
             <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px; line-height: 1.5;">
-                Awtomatikong kukunin ng system ang <strong>Master Code</strong>, Product Name, Category, Variant, Stock, at Presyo.
+                Awtomatikong kukunin ng system ang <strong>Master Code</strong>, Product Name, Category, Variant, Stock,
+                at Presyo.
             </p>
-            <div style="border: 2px dashed #cbd5e1; border-radius: 12px; padding: 26px; text-align: center; background: #f8fafc; margin-bottom: 20px;">
-                <input type="file" name="file" accept=".csv, .xlsx, .xls" required style="font-size: 0.9rem; width: 100%;">
+            <div
+                style="border: 2px dashed #cbd5e1; border-radius: 12px; padding: 26px; text-align: center; background: #f8fafc; margin-bottom: 20px;">
+                <input type="file" name="file" accept=".csv, .xlsx, .xls" required
+                    style="font-size: 0.9rem; width: 100%;">
             </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                 <a href="{% url 'download_sample_template' %}"
-                    style="font-size: 0.85rem; color: #2563eb; font-weight: 700; text-decoration: underline;">⬇ Download Template</a>
+                    style="font-size: 0.85rem; color: #2563eb; font-weight: 700; text-decoration: underline;">⬇ Download
+                    Template</a>
                 <div style="display: flex; gap: 8px;">
                     <button type="button" class="btn btn-outline" onclick="closeImportModal()">Cancel</button>
                     <button type="submit" class="btn btn-blue">Upload &amp; Import</button>
@@ -1030,7 +1070,7 @@
     }
 
     function openImportModal() {
-        const modal = document.getElementById('importModal');
+        const modal = document.getElementById('importModal'); gi
         if (modal) modal.classList.add('active');
     }
 
