@@ -16,4 +16,7 @@ urlpatterns = [
     path('sales/', views.sales_view, name='sales'),
     path('sales/void/<int:order_id>/', views.void_sales_order, name='void_sales_order'),
     path('sales/export/', views.export_sales_csv, name='export_sales_csv'),
+    path('categories/', views.categories_view, name='categories'),
+    path('categories/edit/<int:category_id>/', views.edit_category, name='edit_category'),
+    path('categories/delete/<int:category_id>/', views.delete_category, name='delete_category'),
 ]

@@ -12,7 +12,8 @@ from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Sum, Q
 from django.utils import timezone
-from .models import Product, ProductVariant, Sale, SalesOrder
+from django.utils.text import slugify
+from .models import Product, ProductVariant, Sale, SalesOrder, Category
 
 
 def detect_category(name):
@@ -555,6 +556,136 @@ def export_sales_csv(request):
             " | ".join(items_desc)
         ])
     return response
+
+
+def categories_view(request):
+    search_query = request.GET.get('q', '').strip()
+
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        icon = request.POST.get('icon', '✨').strip()
+        description = request.POST.get('description', '').strip()
+        custom_slug = request.POST.get('slug', '').strip()
+
+        if not name:
+            messages.error(request, 'Pakilagay ang pangalan ng kategorya (Category Name).')
+            return redirect('categories')
+
+        slug = slugify(custom_slug) if custom_slug else slugify(name)
+        if not slug:
+            slug = f"cat-{uuid.uuid4().hex[:6]}"
+
+        if Category.objects.filter(Q(name__iexact=name) | Q(slug=slug)).exists():
+            messages.error(request, f'Ang kategoryang "{name}" o slug "{slug}" ay umiiral na sa database.')
+            return redirect('categories')
+
+        cat = Category.objects.create(
+            name=name,
+            slug=slug,
+            icon=icon or '✨',
+            description=description,
+        )
+        messages.success(request, f'Tagumpay na nalikha ang kategoryang "{cat.name}" ({cat.icon})!')
+        return redirect('categories')
+
+    categories_qs = Category.objects.all().order_by('name')
+    if search_query:
+        categories_qs = categories_qs.filter(
+            Q(name__icontains=search_query) |
+            Q(slug__icontains=search_query) |
+            Q(description__icontains=search_query)
+        )
+
+    category_data = []
+    total_stock_all = 0
+
+    for cat in categories_qs:
+        p_count = cat.product_count
+        stock_sum = cat.total_stock
+        total_stock_all += stock_sum
+        category_data.append({
+            'category': cat,
+            'product_count': p_count,
+            'total_stock': stock_sum,
+        })
+
+    total_categories_count = Category.objects.count()
+    total_products_count = Product.objects.count()
+
+    top_category = None
+    if category_data:
+        top_category = max(category_data, key=lambda c: c['product_count'])
+
+    return render(request, 'Pages/Categories.html', {
+        'page_title': 'Category Management',
+        'current_page': 'categories',
+        'categories_list': category_data,
+        'search_query': search_query,
+        'total_categories_count': total_categories_count,
+        'total_products_count': total_products_count,
+        'total_stock_all': total_stock_all,
+        'top_category': top_category,
+    })
+
+
+def edit_category(request, category_id):
+    if request.method == 'POST':
+        category = get_object_or_404(Category, pk=category_id)
+        name = request.POST.get('name', '').strip()
+        icon = request.POST.get('icon', '✨').strip()
+        description = request.POST.get('description', '').strip()
+        new_slug = request.POST.get('slug', '').strip()
+
+        if not name:
+            messages.error(request, 'Hindi maaaring walang laman ang Category Name.')
+            return redirect('categories')
+
+        target_slug = slugify(new_slug) if new_slug else slugify(name)
+        if not target_slug:
+            target_slug = category.slug
+
+        conflict = Category.objects.filter(~Q(pk=category.id), Q(name__iexact=name) | Q(slug=target_slug)).first()
+        if conflict:
+            messages.error(request, f'Ang pangalan o slug ay ginagamit na ng ibang kategorya ("{conflict.name}").')
+            return redirect('categories')
+
+        old_slug = category.slug
+        category.name = name
+        category.icon = icon or '✨'
+        category.description = description
+        category.slug = target_slug
+        category.save()
+
+        if old_slug != target_slug:
+            Product.objects.filter(category=old_slug).update(category=target_slug)
+
+        messages.success(request, f'Na-update ang kategoryang "{name}" ({category.icon})!')
+    return redirect('categories')
+
+
+def delete_category(request, category_id):
+    if request.method == 'POST':
+        category = get_object_or_404(Category, pk=category_id)
+        cat_name = category.name
+        cat_slug = category.slug
+
+        reassign_slug = request.POST.get('reassign_to', '').strip()
+        affected_count = Product.objects.filter(category=cat_slug).count()
+
+        with transaction.atomic():
+            if affected_count > 0:
+                if not reassign_slug:
+                    fallback_cat = Category.objects.exclude(pk=category.id).first()
+                    reassign_slug = fallback_cat.slug if fallback_cat else 'lips'
+                Product.objects.filter(category=cat_slug).update(category=reassign_slug)
+
+            category.delete()
+
+        if affected_count > 0:
+            messages.success(request, f'Nabura ang kategoryang "{cat_name}". Ang {affected_count} apektadong produkto ay inilipat sa "{reassign_slug}".')
+        else:
+            messages.success(request, f'Matagumpay na nabura ang kategoryang "{cat_name}".')
+    return redirect('categories')
 
 
 def checkout_api(request):

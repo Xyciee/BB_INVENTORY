@@ -1,4 +1,36 @@
 from django.db import models
+from django.utils.text import slugify
+
+
+class Category(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(max_length=100, unique=True)
+    icon = models.CharField(max_length=50, blank=True, default='✨')
+    description = models.TextField(blank=True, default='')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = 'Categories'
+        ordering = ['name']
+
+    def __str__(self):
+        return f"{self.icon} {self.name}" if self.icon else self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    @property
+    def product_count(self):
+        return Product.objects.filter(category=self.slug).count()
+
+    @property
+    def total_stock(self):
+        prods = Product.objects.filter(category=self.slug)
+        v_stock = ProductVariant.objects.filter(product__in=prods).aggregate(models.Sum('stock'))['stock__sum'] or 0
+        p_stock = sum(p.quantity for p in prods if not p.variants.exists())
+        return v_stock + p_stock
 
 
 class Product(models.Model):
@@ -12,7 +44,7 @@ class Product(models.Model):
 
     barcode = models.CharField(max_length=100, unique=True)
     name = models.CharField(max_length=200)
-    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='lips')
+    category = models.CharField(max_length=100, default='lips')
     variant = models.CharField(max_length=255, blank=True, default='')
     image = models.FileField(upload_to='products/', blank=True, null=True)
     image_url = models.URLField(max_length=500, blank=True, default='')
@@ -24,6 +56,13 @@ class Product(models.Model):
 
     class Meta:
         ordering = ['category', 'name']
+
+    @property
+    def category_display(self):
+        cat = Category.objects.filter(slug=self.category).first()
+        if cat:
+            return cat.name
+        return dict(self.CATEGORY_CHOICES).get(self.category, self.category.replace('_', ' ').title())
 
     @property
     def is_low_stock(self):

@@ -6,7 +6,18 @@ from django.contrib import admin, messages
 from django.db import transaction
 from django.shortcuts import render, redirect
 from django.urls import path
-from .models import Product, ProductVariant, Sale, SalesOrder
+from .models import Product, ProductVariant, Sale, SalesOrder, Category
+
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ('icon', 'name', 'slug', 'product_count', 'created_at')
+    search_fields = ('name', 'slug')
+    prepopulated_fields = {'slug': ('name',)}
+
+    def product_count(self, obj):
+        return f"{obj.product_count} products"
+    product_count.short_description = "Products"
 from .views import detect_category
 
 

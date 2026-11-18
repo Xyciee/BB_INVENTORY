@@ -347,8 +347,27 @@
         padding: 4px 10px;
         border-radius: 6px;
         border: 1px solid #cbd5e1;
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
         letter-spacing: 0.3px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+
+    .master-code-badge:hover {
+        background: #e2e8f0;
+        border-color: #94a3b8;
+    }
+
+    .master-code-badge .copy-icon {
+        font-size: 0.76rem;
+        opacity: 0.6;
+        transition: opacity 0.15s;
+    }
+
+    .master-code-badge:hover .copy-icon {
+        opacity: 1;
     }
 
     .variant-stock-list {
@@ -701,6 +720,9 @@
                 <p>Manage product details, Master Codes for barcode scanning, and multi-variant stocks.</p>
             </div>
             <div class="inv-header-actions">
+                <a href="{% url 'categories' %}" class="btn btn-outline" title="Manage Categories">
+                    <span>📂 Categories</span>
+                </a>
                 <button type="button" class="btn btn-primary" id="openAddProductBtn">
                     <span>+ Add Product</span>
                 </button>
@@ -753,12 +775,15 @@
                                 {% endif %}
                                 <div>
                                     <div class="prod-info-name">{{ item.name }}</div>
-                                    <div><span class="cat-badge">{{ item.get_category_display }}</span></div>
+                                    <div><span class="cat-badge">{{ item.category_display }}</span></div>
                                 </div>
                             </div>
                         </td>
                         <td>
-                            <span class="master-code-badge" title="Master Code para sa POS scanner">{{ item.barcode|default:"—" }}</span>
+                            <span class="master-code-badge" title="Click to copy Master Code" onclick="copyMasterCode('{{ item.barcode }}', this)">
+                                <span>{{ item.barcode|default:"—" }}</span>
+                                <span class="copy-icon">📋</span>
+                            </span>
                         </td>
                         <td>
                             <div class="variant-stock-list">
@@ -856,9 +881,12 @@
 
             <!-- Master Code / Barcode -->
             <div class="form-group">
-                <label for="barcodeInput">Master Code / Barcode</label>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <label for="barcodeInput" style="margin-bottom: 0;">Master Code / Barcode</label>
+                    <button type="button" class="btn btn-outline btn-sm" style="padding: 3px 9px; font-size: 0.74rem;" onclick="generateRandomBarcode()">🎲 Auto-Generate</button>
+                </div>
                 <input type="text" id="barcodeInput" name="barcode" class="form-input"
-                    placeholder="e.g. 8858842063187 (or leave blank to auto-generate)" autocomplete="off">
+                    placeholder="e.g. 8858842063187 (or click Auto-Generate)" autocomplete="off">
                 <span class="form-hint">Ito ang ginagamit ng plug-and-play barcode scanner para sa auto add-to-cart sa POS.</span>
             </div>
 
@@ -874,11 +902,15 @@
                 <div class="form-group">
                     <label for="categoryInput">Category</label>
                     <select id="categoryInput" name="category" class="form-select">
-                        <option value="lips">LIPS</option>
-                        <option value="face">FACE</option>
-                        <option value="eyes">EYES</option>
-                        <option value="bath_and_body">BATH AND BODY</option>
-                        <option value="fragrance">FRAGRANCE</option>
+                        {% for cat in all_categories %}
+                        <option value="{{ cat.slug }}">{{ cat.icon|default:"✨" }} {{ cat.name|upper }}</option>
+                        {% empty %}
+                        <option value="lips">💄 LIPS</option>
+                        <option value="face">✨ FACE</option>
+                        <option value="eyes">👁️ EYES</option>
+                        <option value="bath_and_body">🧴 BATH AND BODY</option>
+                        <option value="fragrance">🌸 FRAGRANCE</option>
+                        {% endfor %}
                     </select>
                 </div>
 
@@ -965,6 +997,38 @@
 </div>
 
 <script>
+    function copyMasterCode(code, element) {
+        if (!code || code === '—') return;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(code).then(function () {
+                const originalHtml = element.innerHTML;
+                element.innerHTML = '<span>Copied! ✓</span>';
+                element.style.background = '#dcfce7';
+                element.style.color = '#15803d';
+                element.style.borderColor = '#86efac';
+                setTimeout(function () {
+                    element.innerHTML = originalHtml;
+                    element.style.background = '';
+                    element.style.color = '';
+                    element.style.borderColor = '';
+                }, 1200);
+            }).catch(function () {
+                prompt('Copy barcode:', code);
+            });
+        } else {
+            prompt('Copy barcode:', code);
+        }
+    }
+
+    function generateRandomBarcode() {
+        const input = document.getElementById('barcodeInput');
+        if (input) {
+            const num = '885' + Math.floor(1000000000 + Math.random() * 9000000000);
+            input.value = num;
+            input.focus();
+        }
+    }
+
     function openImportModal() {
         const modal = document.getElementById('importModal');
         if (modal) modal.classList.add('active');

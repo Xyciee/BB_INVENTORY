@@ -12,118 +12,426 @@
         }
     }
 
-    /* Barcode Scanner Toolbar */
-    .scanner-bar-wrap {
+    /* Modern Single Scan Button & Continuous Scanner UI */
+    .btn-scan-trigger {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 18px;
+        background: #0f172a;
+        color: #ffffff;
+        border: 1px solid #1e293b;
+        border-radius: 12px;
+        font-family: inherit;
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.15);
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+
+    .btn-scan-trigger:hover {
+        background: #1e293b;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.25);
+    }
+
+    .scan-live-indicator {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .scan-pulse-dot {
+        width: 9px;
+        height: 9px;
+        background-color: #22c55e;
+        border-radius: 50%;
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+        animation: scanPulse 1.8s infinite;
+    }
+
+    @keyframes scanPulse {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+        70% { transform: scale(1.1); box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+    }
+
+    .btn-scan-icon {
+        font-size: 1.15rem;
+    }
+
+    .btn-scan-title {
+        letter-spacing: 0.2px;
+    }
+
+    .btn-scan-badge {
+        font-size: 0.72rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        background: rgba(34, 197, 94, 0.18);
+        color: #4ade80;
+        border: 1px solid rgba(74, 222, 128, 0.35);
+        padding: 2px 8px;
+        border-radius: 999px;
+        letter-spacing: 0.5px;
+    }
+
+    /* Continuous Scanner Modal */
+    .scanner-modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(11, 17, 32, 0.65);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 100000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        animation: modalFadeIn 0.2s ease-out;
+    }
+
+    @keyframes modalFadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .scanner-modal-card {
         background: #ffffff;
-        border: 1px solid var(--border);
-        border-radius: 14px;
-        padding: 14px 18px;
-        margin-bottom: 18px;
+        width: 100%;
+        max-width: 580px;
+        border-radius: 20px;
+        box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.4);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        animation: modalSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes modalSlideUp {
+        from { transform: translateY(24px) scale(0.97); opacity: 0; }
+        to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    .scanner-modal-header {
+        padding: 20px 24px;
+        background: #0f172a;
+        color: #ffffff;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+    }
+
+    .scanner-header-badge {
+        display: inline-block;
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.8px;
+        color: #38bdf8;
+        background: rgba(56, 189, 248, 0.12);
+        padding: 3px 10px;
+        border-radius: 6px;
+        margin-bottom: 6px;
+    }
+
+    .scanner-modal-header h3 {
+        margin: 0 0 4px 0;
+        font-size: 1.25rem;
+        font-weight: 800;
+        letter-spacing: -0.3px;
+        color: #ffffff;
+    }
+
+    .scanner-modal-header p {
+        margin: 0;
+        font-size: 0.84rem;
+        color: #94a3b8;
+        line-height: 1.4;
+    }
+
+    .scanner-modal-close {
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: #ffffff;
+        font-size: 1.5rem;
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+        transition: background 0.15s;
+    }
+
+    .scanner-modal-close:hover {
+        background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Laser Viewport */
+    .scanner-laser-viewport {
+        background: #020617;
+        padding: 26px 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        border-bottom: 1px solid #1e293b;
+    }
+
+    .scanner-laser-box {
+        position: relative;
+        width: 260px;
+        height: 80px;
+        background: #0b1120;
+        border: 2px dashed #334155;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.6);
+    }
+
+    .scanner-barcode-graphic {
+        font-family: var(--font-mono);
+        font-size: 1.6rem;
+        font-weight: 900;
+        color: #475569;
+        letter-spacing: 4px;
+        user-select: none;
+        opacity: 0.5;
+    }
+
+    .scanner-laser-line {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: #ef4444;
+        box-shadow: 0 0 12px 2px #ef4444, 0 0 4px #f87171;
+        animation: laserScan 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes laserScan {
+        0% { top: 6px; }
+        100% { top: 70px; }
+    }
+
+    .scanner-viewport-status {
+        margin-top: 14px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #22c55e;
+        font-size: 0.85rem;
+        font-weight: 700;
+        background: rgba(34, 197, 94, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.25);
+        padding: 5px 14px;
+        border-radius: 999px;
+    }
+
+    .scanner-status-dot {
+        width: 8px;
+        height: 8px;
+        background: #22c55e;
+        border-radius: 50%;
+        animation: scanPulse 1.5s infinite;
+    }
+
+    .scanner-hidden-input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: auto;
+        width: 1px;
+        height: 1px;
+        top: -9999px;
+        left: -9999px;
+    }
+
+    /* Live Session Feed */
+    .scanner-session-section {
+        padding: 18px 24px;
+        background: #f8fafc;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        max-height: 240px;
+    }
+
+    .scanner-session-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 10px;
+    }
+
+    .scanner-session-count {
+        background: #e2e8f0;
+        color: #0f172a;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 0.76rem;
+    }
+
+    .scanner-session-list {
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding-right: 4px;
+    }
+
+    .scanner-session-item {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 10px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        animation: itemSlideIn 0.2s ease-out;
+    }
+
+    @keyframes itemSlideIn {
+        from { transform: translateY(-8px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    .scanner-item-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+    }
+
+    .scanner-item-badge-icon {
+        width: 32px;
+        height: 32px;
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        color: #16a34a;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.95rem;
+        font-weight: 800;
+        flex-shrink: 0;
+    }
+
+    .scanner-item-details {
+        min-width: 0;
+    }
+
+    .scanner-item-name {
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: #0f172a;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .scanner-item-meta {
+        font-size: 0.76rem;
+        color: #64748b;
+        font-weight: 600;
+    }
+
+    .scanner-item-right {
+        text-align: right;
+        flex-shrink: 0;
+    }
+
+    .scanner-item-price {
+        font-size: 0.9rem;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .scanner-item-status {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #16a34a;
+    }
+
+    .scanner-session-empty {
+        text-align: center;
+        color: #94a3b8;
+        font-size: 0.88rem;
+        padding: 32px 16px;
+        font-weight: 500;
+    }
+
+    /* Modal Footer */
+    .scanner-modal-footer {
+        padding: 16px 24px;
+        background: #ffffff;
+        border-top: 1px solid #e2e8f0;
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 16px;
-        flex-wrap: wrap;
-        box-shadow: var(--shadow-sm);
-        transition: border-color 0.2s;
     }
 
-    .scanner-bar-wrap:focus-within {
-        border-color: #2563eb;
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-    }
-
-    .scanner-input-container {
+    .scanner-footer-total {
         display: flex;
-        align-items: center;
-        gap: 10px;
-        flex: 1;
-        min-width: 290px;
+        flex-direction: column;
     }
 
-    .scanner-icon-badge {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 42px;
-        height: 42px;
-        border-radius: 10px;
-        background: #0b1120;
-        color: #ffffff;
-        font-size: 1.25rem;
-        flex-shrink: 0;
-        box-shadow: var(--shadow-xs);
-    }
-
-    .scanner-input {
-        flex: 1;
-        padding: 10px 16px;
-        border: 1.5px solid #cbd5e1;
-        border-radius: 10px;
-        font-family: var(--font-mono);
-        font-size: 0.92rem;
+    .scanner-footer-total .label {
+        font-size: 0.76rem;
         font-weight: 600;
-        color: var(--text-main);
-        background: #f8fafc;
-        outline: none;
+        color: #64748b;
+        text-transform: uppercase;
         letter-spacing: 0.3px;
-        transition: all 0.15s ease;
     }
 
-    .scanner-input:focus {
-        background: #ffffff;
-        border-color: #2563eb;
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    .scanner-footer-total .amount {
+        font-size: 1.25rem;
+        font-weight: 900;
+        color: #0f172a;
+        letter-spacing: -0.3px;
     }
 
-    .scanner-btn {
-        padding: 10px 18px;
-        border-radius: 10px;
-        border: none;
+    .btn-finish-scanning {
+        padding: 12px 22px;
         background: #0f172a;
         color: #ffffff;
-        font-size: 0.88rem;
-        font-weight: 700;
+        border: none;
+        border-radius: 12px;
+        font-size: 0.92rem;
+        font-weight: 800;
         cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        transition: all 0.15s ease;
-        white-space: nowrap;
-    }
-
-    .scanner-btn:hover {
-        background: #1e293b;
-        transform: translateY(-1px);
-    }
-
-    .scanner-live-badge {
-        display: flex;
+        display: inline-flex;
         align-items: center;
         gap: 8px;
-        font-size: 0.78rem;
-        font-weight: 700;
-        color: #15803d;
-        background: #f0fdf4;
-        border: 1px solid #bbf7d0;
-        padding: 6px 14px;
-        border-radius: 999px;
-        white-space: nowrap;
-        letter-spacing: 0.2px;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
     }
 
-    .pulse-dot {
-        width: 8px;
-        height: 8px;
-        background-color: #16a34a;
-        border-radius: 50%;
-        animation: pulse 1.6s infinite;
-    }
-
-    @keyframes pulse {
-        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7); }
-        70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(22, 163, 74, 0); }
-        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+    .btn-finish-scanning:hover {
+        background: #1e293b;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.3);
     }
 
     /* Search Toolbar */
@@ -639,6 +947,43 @@
         letter-spacing: -0.02em;
     }
 
+    /* POS Payment Selection Tiles */
+    .pos-payment-tiles {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 4px;
+    }
+
+    .pos-payment-tile {
+        padding: 9px 8px;
+        border-radius: 9px;
+        border: 1.5px solid var(--border);
+        background: #f8fafc;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .pos-payment-tile:hover {
+        background: #ffffff;
+        border-color: #cbd5e1;
+        color: var(--text-main);
+    }
+
+    .pos-payment-tile.active {
+        background: #0b1120;
+        color: #ffffff;
+        border-color: #0b1120;
+        box-shadow: 0 2px 6px rgba(11, 17, 32, 0.2);
+    }
+
     .checkout-submit-btn {
         margin-top: 8px;
         width: 100%;
@@ -804,26 +1149,6 @@
 <div class="pos-layout">
     <!-- Left: Search Bar + Product Cards Grid + Pagination -->
     <div>
-        <!-- Plug-and-Play Scanner Bar -->
-        <div class="scanner-bar-wrap">
-            <div class="scanner-input-container">
-                <div class="scanner-icon-badge" title="Plug-and-play barcode scanner active">📷</div>
-                <input
-                    type="text"
-                    id="posBarcodeInput"
-                    class="scanner-input"
-                    placeholder="Scan Master Code with plug-and-play scanner or type barcode..."
-                    autocomplete="off"
-                    autofocus
-                >
-                <button type="button" id="posBarcodeSubmitBtn" class="scanner-btn">+ Add Scanned Item</button>
-            </div>
-            <div class="scanner-live-badge">
-                <span class="pulse-dot"></span>
-                <span>Plug &amp; Play Scanner Ready</span>
-            </div>
-        </div>
-
         <div id="scannerToast" class="scanner-toast"></div>
 
         <div class="catalog-toolbar">
@@ -843,6 +1168,14 @@
                     <a href="?category={{ selected_category|default:'all' }}" class="clear-search-link">Clear</a>
                 {% endif %}
             </form>
+
+            <!-- Single Continuous Scanner Button -->
+            <button type="button" class="btn-scan-trigger" id="openScannerModalBtn">
+                <span class="scan-live-indicator"><span class="scan-pulse-dot"></span></span>
+                <span class="btn-scan-icon">📷</span>
+                <span class="btn-scan-title">Scan Barcode / Products</span>
+                <span class="btn-scan-badge">Continuous Scan</span>
+            </button>
         </div>
 
         <div class="products-grid">
@@ -956,19 +1289,23 @@
             </div>
 
             <!-- Customer & Payment Fields for Sales Record -->
-            <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px;">
+            <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 10px;">
                 <div>
-                    <label style="font-size: 0.72rem; font-weight: 600; color: #64748b; text-transform: uppercase;">Customer Name</label>
-                    <input type="text" id="posCustomerName" class="form-input" placeholder="Walk-in Customer (optional)" style="padding: 7px 10px; font-size: 0.82rem; border-radius: 6px; border: 1px solid #cbd5e1; width: 100%; box-sizing: border-box;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Customer Name</label>
+                        <span style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600;" onclick="document.getElementById('posCustomerName').value='Walk-in Customer'">+ Walk-in</span>
+                    </div>
+                    <input type="text" id="posCustomerName" class="form-input" placeholder="Walk-in Customer" value="Walk-in Customer" style="padding: 9px 12px; font-size: 0.86rem; border-radius: 8px; border: 1px solid var(--border); width: 100%;">
                 </div>
                 <div>
-                    <label style="font-size: 0.72rem; font-weight: 600; color: #64748b; text-transform: uppercase;">Payment Method</label>
-                    <select id="posPaymentMethod" class="form-select" style="padding: 7px 10px; font-size: 0.82rem; border-radius: 6px; border: 1px solid #cbd5e1; width: 100%; box-sizing: border-box; background: #ffffff;">
-                        <option value="Cash">💵 Cash</option>
-                        <option value="GCash">📱 GCash</option>
-                        <option value="Maya">💳 Maya</option>
-                        <option value="Card">💳 Credit / Debit Card</option>
-                    </select>
+                    <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: block;">Payment Method</label>
+                    <input type="hidden" id="posPaymentMethod" value="Cash">
+                    <div class="pos-payment-tiles" id="posPaymentTiles">
+                        <button type="button" class="pos-payment-tile active" data-method="Cash">💵 Cash</button>
+                        <button type="button" class="pos-payment-tile" data-method="GCash">📱 GCash</button>
+                        <button type="button" class="pos-payment-tile" data-method="Maya">💳 Maya</button>
+                        <button type="button" class="pos-payment-tile" data-method="Card">💳 Card</button>
+                    </div>
                 </div>
             </div>
 
@@ -979,6 +1316,58 @@
             </button>
         </div>
     </aside>
+</div>
+
+<!-- ================= CONTINUOUS BARCODE SCANNER MODAL ================= -->
+<div class="scanner-modal-backdrop" id="continuousScannerModal" style="display: none;">
+    <div class="scanner-modal-card">
+        <div class="scanner-modal-header">
+            <div>
+                <div class="scanner-header-badge">📷 CONTINUOUS POS SCANNER</div>
+                <h3>Scan Customer Order</h3>
+                <p>Dire-diretsong i-scan ang mga barcode gamit ang scanner gun. Bawat scan ay awtomatikong papasok diretso sa cart!</p>
+            </div>
+            <button type="button" class="scanner-modal-close" id="closeContinuousScannerBtn" title="Close modal">&times;</button>
+        </div>
+
+        <div class="scanner-laser-viewport">
+            <div class="scanner-laser-box">
+                <div class="scanner-laser-line"></div>
+                <div class="scanner-barcode-graphic">
+                    <span>||| | | || ||| | ||| || | | ||| | ||</span>
+                </div>
+            </div>
+            <div class="scanner-viewport-status">
+                <span class="scanner-status-dot"></span>
+                <span id="scannerStatusText">Scanner Gun Ready • Continuous Scan Active</span>
+            </div>
+            <!-- Auto-focused hidden input to capture scanner gun characters cleanly -->
+            <input type="text" id="continuousScannerInput" class="scanner-hidden-input" autocomplete="off" placeholder="Scanner input...">
+        </div>
+
+        <!-- Live Session Feed -->
+        <div class="scanner-session-section">
+            <div class="scanner-session-heading">
+                <span>Scanned in this Session</span>
+                <span id="sessionScannedCount" class="scanner-session-count">0 items</span>
+            </div>
+            <div id="scannerSessionList" class="scanner-session-list">
+                <div class="scanner-session-empty">
+                    Walang pang na-i-scan. Itapat ang scanner gun sa barcode ng produkto.
+                </div>
+            </div>
+        </div>
+
+        <div class="scanner-modal-footer">
+            <div class="scanner-footer-total">
+                <span class="label">Session Subtotal</span>
+                <span id="scannerSessionTotal" class="amount">&#8369;0.00</span>
+            </div>
+            <button type="button" class="btn-finish-scanning" id="finishScanningBtn">
+                ✓ Done Scanning (View Cart &amp; Checkout)
+            </button>
+        </div>
+    </div>
 </div>
 
 <!-- ================= MINIMALIST CHECKOUT LOADING & SUCCESS OVERLAY ================= -->
@@ -1359,6 +1748,16 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Payment Method Tiles Toggle
+    document.querySelectorAll('.pos-payment-tile').forEach(function (tile) {
+        tile.addEventListener('click', function () {
+            document.querySelectorAll('.pos-payment-tile').forEach(function (t) { t.classList.remove('active'); });
+            this.classList.add('active');
+            const hidden = document.getElementById('posPaymentMethod');
+            if (hidden) hidden.value = this.getAttribute('data-method');
+        });
+    });
+
     renderCart();
 
     // --- Scan and Auto-Add to Cart (With Stock Validation & Anti-Double-Scan Protection) ---
@@ -1428,6 +1827,33 @@ document.addEventListener('DOMContentLoaded', function () {
                     saveCart();
                     playBeep(true);
                     showScannerToast('✓ Scanned: ' + data.name + ' (' + variant + ') added to cart!', true);
+
+                    // Add to Continuous Scanner Modal Session Feed
+                    const sessionExisting = sessionScannedItems.find(function (it) { return it.key === cartKey; });
+                    if (sessionExisting) {
+                        sessionExisting.qty += 1;
+                    } else {
+                        sessionScannedItems.unshift({
+                            key: cartKey,
+                            name: data.name,
+                            variant: variant,
+                            price: parseFloat(data.price || 0),
+                            qty: 1
+                        });
+                    }
+                    updateScannerSessionUI();
+
+                    const statusTxt = document.getElementById('scannerStatusText');
+                    if (statusTxt) {
+                        statusTxt.textContent = '✓ Scanned: ' + data.name + ' (' + variant + ') added!';
+                        statusTxt.style.color = '#4ade80';
+                        setTimeout(function () {
+                            if (statusTxt) {
+                                statusTxt.textContent = 'Scanner Gun Ready • Continuous Scan Active';
+                                statusTxt.style.color = '#22c55e';
+                            }
+                        }, 1800);
+                    }
                 } else {
                     playBeep(false);
                     showCashierStockAlert(
@@ -1435,6 +1861,18 @@ document.addEventListener('DOMContentLoaded', function () {
                         'Ang Master Code / Barcode na <code>' + escapeHtml(code) + '</code> ay hindi mahanap sa database ng inventory.'
                     );
                     showScannerToast('✕ Master Code "' + code + '" not found in inventory!', false);
+
+                    const statusTxt = document.getElementById('scannerStatusText');
+                    if (statusTxt) {
+                        statusTxt.textContent = '✕ Barcode "' + code + '" not found!';
+                        statusTxt.style.color = '#f87171';
+                        setTimeout(function () {
+                            if (statusTxt) {
+                                statusTxt.textContent = 'Scanner Gun Ready • Continuous Scan Active';
+                                statusTxt.style.color = '#22c55e';
+                            }
+                        }, 2200);
+                    }
                 }
             })
             .catch(function (err) {
@@ -1443,50 +1881,133 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     }
 
-    // --- Barcode Input Field Handler ---
-    const posBarcodeInput = document.getElementById('posBarcodeInput');
-    const posBarcodeSubmitBtn = document.getElementById('posBarcodeSubmitBtn');
+    // --- Continuous Scanner Modal & Session UI ---
+    let sessionScannedItems = [];
+    const continuousScannerModal = document.getElementById('continuousScannerModal');
+    const continuousScannerInput = document.getElementById('continuousScannerInput');
+    const openScannerModalBtn = document.getElementById('openScannerModalBtn');
+    const closeContinuousScannerBtn = document.getElementById('closeContinuousScannerBtn');
+    const finishScanningBtn = document.getElementById('finishScanningBtn');
+    const scannerSessionList = document.getElementById('scannerSessionList');
+    const sessionScannedCount = document.getElementById('sessionScannedCount');
+    const scannerSessionTotal = document.getElementById('scannerSessionTotal');
 
-    if (posBarcodeInput) {
-        posBarcodeInput.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                e.stopPropagation();
-                scanBuffer = ''; // Clear scanner buffer so global listener doesn't re-trigger
-                const val = posBarcodeInput.value.trim();
-                if (val) {
-                    handleScanCode(val);
-                    posBarcodeInput.value = '';
+    function updateScannerSessionUI() {
+        if (!scannerSessionList || !sessionScannedCount || !scannerSessionTotal) return;
+
+        let totalQty = 0;
+        let subtotal = 0;
+
+        sessionScannedItems.forEach(function (it) {
+            totalQty += it.qty;
+            subtotal += (it.price * it.qty);
+        });
+
+        sessionScannedCount.textContent = totalQty + ' item' + (totalQty === 1 ? '' : 's');
+        scannerSessionTotal.innerHTML = '&#8369;' + subtotal.toFixed(2);
+
+        if (sessionScannedItems.length === 0) {
+            scannerSessionList.innerHTML = '<div class="scanner-session-empty">Walang pang na-i-scan. Itapat ang scanner gun sa barcode ng produkto.</div>';
+            return;
+        }
+
+        scannerSessionList.innerHTML = sessionScannedItems.map(function (it) {
+            const lineTotal = it.price * it.qty;
+            return (
+                '<div class="scanner-session-item">' +
+                    '<div class="scanner-item-left">' +
+                        '<div class="scanner-item-badge-icon">&#10003;</div>' +
+                        '<div class="scanner-item-details">' +
+                            '<div class="scanner-item-name">' + escapeHtml(it.name) + '</div>' +
+                            '<div class="scanner-item-meta">' + escapeHtml(it.variant || 'Standard') + ' &bull; &#8369;' + it.price.toFixed(2) + ' &times; ' + it.qty + '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="scanner-item-right">' +
+                        '<div class="scanner-item-price">&#8369;' + lineTotal.toFixed(2) + '</div>' +
+                        '<div class="scanner-item-status">&#10003; Added to cart</div>' +
+                    '</div>' +
+                '</div>'
+            );
+        }).join('');
+    }
+
+    function openContinuousScanner() {
+        if (!continuousScannerModal) return;
+        continuousScannerModal.style.display = 'flex';
+        sessionScannedItems = [];
+        updateScannerSessionUI();
+        if (continuousScannerInput) {
+            continuousScannerInput.value = '';
+            setTimeout(function () {
+                continuousScannerInput.focus();
+            }, 60);
+        }
+    }
+
+    function closeContinuousScanner() {
+        if (!continuousScannerModal) return;
+        continuousScannerModal.style.display = 'none';
+    }
+
+    if (openScannerModalBtn) {
+        openScannerModalBtn.addEventListener('click', openContinuousScanner);
+    }
+    if (closeContinuousScannerBtn) {
+        closeContinuousScannerBtn.addEventListener('click', closeContinuousScanner);
+    }
+    if (finishScanningBtn) {
+        finishScanningBtn.addEventListener('click', closeContinuousScanner);
+    }
+
+    if (continuousScannerModal) {
+        continuousScannerModal.addEventListener('click', function (e) {
+            if (e.target === continuousScannerModal) {
+                closeContinuousScanner();
+            } else {
+                // Ensure scanner input always maintains focus while modal is open
+                if (continuousScannerInput && document.activeElement !== continuousScannerInput) {
+                    continuousScannerInput.focus();
                 }
             }
         });
     }
 
-    if (posBarcodeSubmitBtn && posBarcodeInput) {
-        posBarcodeSubmitBtn.addEventListener('click', function () {
-            scanBuffer = '';
-            const val = posBarcodeInput.value.trim();
-            if (val) {
-                handleScanCode(val);
-                posBarcodeInput.value = '';
-                posBarcodeInput.focus();
+    // Modal Input Keydown (Scanner Gun Enter Trigger)
+    if (continuousScannerInput) {
+        continuousScannerInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                e.stopPropagation();
+                scanBuffer = '';
+                const val = continuousScannerInput.value.trim();
+                if (val) {
+                    handleScanCode(val);
+                    continuousScannerInput.value = '';
+                }
             }
         });
     }
 
-    // --- Global Keypress Listener for Plug-and-Play Scanner ---
+    // --- Global Keypress Listener for Plug-and-Play Scanner Anywhere on Page ---
     let scanBuffer = '';
     let lastKeyTime = Date.now();
 
     window.addEventListener('keydown', function (e) {
-        const activeEl = document.activeElement;
-
-        // If user is already focused on the barcode input box, let its own keydown handler manage it
-        if (activeEl === posBarcodeInput) {
-            scanBuffer = '';
+        // If Escape key pressed while scanner modal is open, close it
+        if (e.key === 'Escape' && continuousScannerModal && continuousScannerModal.style.display === 'flex') {
+            closeContinuousScanner();
             return;
         }
 
+        // If continuous scanner modal is currently open, delegate focus to its input
+        if (continuousScannerModal && continuousScannerModal.style.display === 'flex') {
+            if (document.activeElement !== continuousScannerInput && continuousScannerInput) {
+                continuousScannerInput.focus();
+            }
+            return;
+        }
+
+        const activeEl = document.activeElement;
         const activeTag = activeEl ? activeEl.tagName.toLowerCase() : '';
         const isSearchOrFormInput = activeEl && (activeTag === 'input' || activeTag === 'textarea');
 
@@ -1499,7 +2020,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 e.preventDefault();
                 handleScanCode(scanBuffer);
                 scanBuffer = '';
-                if (posBarcodeInput) posBarcodeInput.value = '';
                 return;
             }
             scanBuffer = '';

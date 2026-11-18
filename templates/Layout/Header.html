@@ -3,10 +3,11 @@
     <div class="navbar">
         <div class="navbar-container">
             <a href="{% url 'analytics' %}" class="navbar-brand">
+                <div class="navbar-brand-logo-icon">BB</div>
                 <span class="navbar-brand-title">
                     BABY BRIGHT
                 </span>
-                <span class="navbar-brand-badge">POS &amp; Retail</span>
+                <span class="navbar-brand-badge">Enterprise POS</span>
             </a>
 
             <nav class="navbar-nav" id="navbarNav">
@@ -20,28 +21,40 @@
                     <span class="nav-link-icon">📦</span>
                     <span>Inventory</span>
                 </a>
+                <a href="{% url 'categories' %}" class="nav-link {% if current_page == 'categories' %}active{% endif %}"
+                    title="Category Management">
+                    <span class="nav-link-icon">📂</span>
+                    <span>Categories</span>
+                </a>
                 <a href="{% url 'sales' %}" class="nav-link {% if current_page == 'sales' %}active{% endif %}"
                     title="Sales Records &amp; Analytics">
                     <span class="nav-link-icon">📈</span>
                     <span>Sales Records</span>
                 </a>
             </nav>
+
+            <div class="navbar-clock-wrap">
+                <span>🕒</span>
+                <span id="navbarLiveClock">Loading clock...</span>
+            </div>
         </div>
     </div>
 
     <!-- Secondary Product Filter Navbar (Shown on POS and Inventory) -->
-    {% if current_page != 'sales' %}
+    {% if current_page != 'sales' and current_page != 'categories' %}
     {% with selected_cat=request.GET.category|default:"all" %}
     <div class="filter-navbar">
         <div class="filter-navbar-container">
             <a href="?category=all" class="filter-link {% if selected_cat == 'all' %}active{% endif %}">✨ ALL ITEMS</a>
+            {% for cat in all_categories %}
+            <a href="?category={{ cat.slug }}" class="filter-link {% if selected_cat == cat.slug %}active{% endif %}">
+                <span>{{ cat.icon|default:"✨" }}</span>
+                <span>{{ cat.name|upper }}</span>
+            </a>
+            {% empty %}
             <a href="?category=lips" class="filter-link {% if selected_cat == 'lips' %}active{% endif %}">💄 LIPS</a>
             <a href="?category=face" class="filter-link {% if selected_cat == 'face' %}active{% endif %}">✨ FACE</a>
-            <a href="?category=eyes" class="filter-link {% if selected_cat == 'eyes' %}active{% endif %}">👁️ EYES</a>
-            <a href="?category=bath_and_body"
-                class="filter-link {% if selected_cat == 'bath_and_body' %}active{% endif %}">🧴 BATH AND BODY</a>
-            <a href="?category=fragrance"
-                class="filter-link {% if selected_cat == 'fragrance' %}active{% endif %}">🌸 FRAGRANCE</a>
+            {% endfor %}
         </div>
     </div>
     {% endwith %}
