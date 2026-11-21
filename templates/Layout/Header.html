@@ -11,7 +11,7 @@
             </a>
 
             <nav class="navbar-nav" id="navbarNav">
-                <a href="{% url 'analytics' %}" class="nav-link {% if current_page == 'analytics' %}active{% endif %}"
+                <a href="{% url 'pos' %}" class="nav-link {% if current_page == 'pos' or current_page == 'analytics' %}active{% endif %}"
                     title="Point of Sale &amp; Catalog">
                     <span class="nav-link-icon">🛒</span>
                     <span>POS / Catalog</span>
@@ -27,9 +27,14 @@
                     <span>Categories</span>
                 </a>
                 <a href="{% url 'sales' %}" class="nav-link {% if current_page == 'sales' %}active{% endif %}"
-                    title="Sales Records &amp; Analytics">
-                    <span class="nav-link-icon">📈</span>
+                    title="Sales Records &amp; Order History">
+                    <span class="nav-link-icon">🧾</span>
                     <span>Sales Records</span>
+                </a>
+                <a href="{% url 'analytics_dashboard' %}" class="nav-link {% if current_page == 'analytics_dashboard' %}active{% endif %}"
+                    title="Business Analytics &amp; Reports">
+                    <span class="nav-link-icon">📊</span>
+                    <span>Analytics</span>
                 </a>
             </nav>
 
@@ -41,7 +46,7 @@
     </div>
 
     <!-- Secondary Product Filter Navbar (Shown on POS and Inventory) -->
-    {% if current_page != 'sales' and current_page != 'categories' %}
+    {% if current_page != 'sales' and current_page != 'categories' and current_page != 'analytics_dashboard' %}
     {% with selected_cat=request.GET.category|default:"all" %}
     <div class="filter-navbar">
         <div class="filter-navbar-container">

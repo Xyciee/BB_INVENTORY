@@ -2,8 +2,9 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.analytics_view, name='analytics'),
-    path('analytics/', views.analytics_view, name='analytics_page'),
+    path('', views.pos_view, name='pos'),
+    path('catalog/', views.pos_view, name='analytics'),
+    path('analytics/', views.analytics_dashboard_view, name='analytics_dashboard'),
     path('inventory/', views.inventory_view, name='inventory'),
     path('inventory/stock/<int:pk>/', views.update_stock, name='update_stock'),
     path('inventory/variant-stock/<int:variant_id>/', views.update_variant_stock, name='update_variant_stock'),

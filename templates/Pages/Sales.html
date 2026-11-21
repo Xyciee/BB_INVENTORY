@@ -583,6 +583,116 @@
         cursor: not-allowed;
         opacity: 0.7;
     }
+
+    /* Void Confirmation Modal */
+    .void-modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(11, 17, 32, 0.6);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        z-index: 100000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .void-modal-overlay.active {
+        display: flex;
+    }
+
+    .void-modal-card {
+        background: #ffffff;
+        border-radius: 20px;
+        max-width: 460px;
+        width: 100%;
+        padding: 28px 30px;
+        box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.35);
+        border: 1px solid var(--border);
+        animation: modalScaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        text-align: center;
+    }
+
+    @keyframes modalScaleIn {
+        from { transform: scale(0.92); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+
+    .void-modal-icon-badge {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: #fef2f2;
+        color: #ef4444;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.7rem;
+        margin: 0 auto 16px auto;
+        box-shadow: 0 0 0 8px #fff1f2;
+    }
+
+    .void-modal-title {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 8px;
+    }
+
+    .void-modal-desc {
+        font-size: 0.88rem;
+        color: #64748b;
+        line-height: 1.5;
+        margin-bottom: 18px;
+    }
+
+    .void-modal-order-summary {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 14px 18px;
+        margin-bottom: 22px;
+        text-align: left;
+        font-size: 0.85rem;
+    }
+
+    .void-modal-order-summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 4px 0;
+        color: #475569;
+    }
+
+    .void-modal-order-summary-row strong {
+        color: #0f172a;
+    }
+
+    .void-modal-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+    }
+
+    .btn-danger-confirm {
+        background: #dc2626;
+        color: #ffffff;
+        border: none;
+        padding: 11px 22px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);
+    }
+
+    .btn-danger-confirm:hover {
+        background: #b91c1c;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35);
+    }
 </style>
 
 <div class="sales-container">
@@ -633,7 +743,7 @@
                 <h1>
                     <span>📈 Sales Records &amp; Order History</span>
                 </h1>
-                <p>Naitatala ang bawat transaksyon, customer name, payment method, at resibo sa POS.</p>
+                <p>Track every transaction, customer information, payment methods, and official receipts.</p>
             </div>
             <div class="sales-header-actions">
                 <a href="{% url 'analytics' %}" class="btn btn-primary">
@@ -768,22 +878,23 @@
                                     data-items="{{ order.items_json }}">
                                     🧾 Receipt
                                 </button>
-                                <form method="POST" action="{% url 'void_sales_order' order.id %}" style="display:inline;">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-danger-soft btn-sm"
-                                        onclick="return confirm('Sigurado ka bang nais mong i-void ang Order #{{ order.order_number }}? Ibabalik ang mga stocks sa imbentaryo.');"
-                                        title="Void order and restore stock">
-                                        ⛔ Void
-                                    </button>
-                                </form>
+                                <button type="button" class="btn btn-danger-soft btn-sm js-open-void-btn"
+                                    data-order-id="{{ order.id }}"
+                                    data-order-num="{{ order.order_number }}"
+                                    data-customer="{{ order.customer_name }}"
+                                    data-items="{{ order.total_items }}"
+                                    data-total="{{ order.total_amount }}"
+                                    title="Void order and return stock">
+                                    ⛔ Void
+                                </button>
                             </div>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
                         <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 48px 16px;">
-                            <div style="font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; color: var(--text-main);">Walang sales record na nahanap</div>
-                            <p style="font-size: 0.88rem;">Mag-checkout ng produkto sa <strong>POS / Catalog</strong> para magkaroon ng sales history.</p>
+                            <div style="font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; color: var(--text-main);">No sales records found</div>
+                            <p style="font-size: 0.88rem;">Complete customer checkouts in the <strong>POS / Catalog</strong> to record sales history.</p>
                         </td>
                     </tr>
                     {% endfor %}
@@ -863,13 +974,51 @@
         </div>
 
         <div style="text-align: center; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 22px; line-height: 1.5;">
-            Salamat sa inyong pagtangkilik!<br>Order officially recorded in Baby Bright Sales Database.
+            Thank you for your business!<br>Official POS transaction recorded in Baby Bright Sales Database.
         </div>
 
         <div class="receipt-actions">
             <button type="button" class="btn btn-outline" onclick="closeReceiptModal()">Close</button>
             <button type="button" class="btn btn-primary" onclick="window.print()">🖨️ Print Receipt</button>
         </div>
+    </div>
+</div>
+
+<!-- ================= VOID ORDER CONFIRMATION MODAL ================= -->
+<div class="void-modal-overlay" id="voidOrderModal">
+    <div class="void-modal-card">
+        <div class="void-modal-icon-badge">⚠️</div>
+        <h3 class="void-modal-title">Void Order Confirmation</h3>
+        <p class="void-modal-desc">
+            Are you sure you want to void this transaction? This action will permanently cancel the order and return all purchased quantities back into the inventory stock.
+        </p>
+
+        <div class="void-modal-order-summary">
+            <div class="void-modal-order-summary-row">
+                <span>Order Number:</span>
+                <strong id="voidOrderNum">--</strong>
+            </div>
+            <div class="void-modal-order-summary-row">
+                <span>Customer:</span>
+                <strong id="voidOrderCustomer">--</strong>
+            </div>
+            <div class="void-modal-order-summary-row">
+                <span>Total Items:</span>
+                <strong id="voidOrderItems">--</strong>
+            </div>
+            <div class="void-modal-order-summary-row" style="border-top: 1px dashed #cbd5e1; margin-top: 6px; padding-top: 6px;">
+                <span>Total Amount:</span>
+                <strong id="voidOrderTotal" style="color: #dc2626; font-size: 1.05rem;">--</strong>
+            </div>
+        </div>
+
+        <form method="POST" id="voidOrderForm" action="">
+            {% csrf_token %}
+            <div class="void-modal-actions">
+                <button type="button" class="btn btn-outline" onclick="closeVoidModal()">Cancel</button>
+                <button type="submit" class="btn btn-danger-confirm">Confirm &amp; Void Order</button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -881,6 +1030,46 @@
     const rPayment = document.getElementById('rPayment');
     const rTotalAmount = document.getElementById('rTotalAmount');
     const receiptItemsBody = document.getElementById('receiptItemsBody');
+
+    // Void Modal Elements
+    const voidOrderModal = document.getElementById('voidOrderModal');
+    const voidOrderForm = document.getElementById('voidOrderForm');
+    const voidOrderNum = document.getElementById('voidOrderNum');
+    const voidOrderCustomer = document.getElementById('voidOrderCustomer');
+    const voidOrderItems = document.getElementById('voidOrderItems');
+    const voidOrderTotal = document.getElementById('voidOrderTotal');
+
+    function openVoidModal(data) {
+        if (!voidOrderModal) return;
+        voidOrderNum.textContent = '#' + data.orderNum;
+        voidOrderCustomer.textContent = data.customer || 'Walk-in Customer';
+        voidOrderItems.textContent = data.items + ' pcs';
+        voidOrderTotal.innerHTML = '&#8369;' + parseFloat(data.total || 0).toFixed(2);
+        voidOrderForm.action = '/sales/void/' + data.orderId + '/';
+        voidOrderModal.classList.add('active');
+    }
+
+    function closeVoidModal() {
+        if (voidOrderModal) voidOrderModal.classList.remove('active');
+    }
+
+    if (voidOrderModal) {
+        voidOrderModal.addEventListener('click', function (e) {
+            if (e.target === voidOrderModal) closeVoidModal();
+        });
+    }
+
+    document.querySelectorAll('.js-open-void-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            openVoidModal({
+                orderId: btn.getAttribute('data-order-id'),
+                orderNum: btn.getAttribute('data-order-num'),
+                customer: btn.getAttribute('data-customer'),
+                items: btn.getAttribute('data-items'),
+                total: btn.getAttribute('data-total')
+            });
+        });
+    });
 
     function openReceiptModal(data) {
         if (!receiptModal) return;

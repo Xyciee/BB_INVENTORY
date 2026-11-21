@@ -10,7 +10,7 @@ from django.core.paginator import Paginator
 from django.db import transaction
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.db.models import Sum, Q
+from django.db.models import Sum, Q, Count, Avg, Max, Min
 from django.utils import timezone
 from django.utils.text import slugify
 from .models import Product, ProductVariant, Sale, SalesOrder, Category
@@ -328,15 +328,180 @@ def _get_filtered_products(request, per_page=8):
     return page_obj, qs, category, search_query
 
 
-def analytics_view(request):
+def pos_view(request):
     page_obj, _, selected_category, search_query = _get_filtered_products(request, per_page=9)
-    return render(request, 'Pages/Analytics.html', {
-        'page_title': 'Analytics',
-        'current_page': 'analytics',
+    return render(request, 'Pages/PosCatalog.html', {
+        'page_title': 'Point of Sale & Catalog',
+        'current_page': 'pos',
         'products': page_obj,
         'page_obj': page_obj,
         'selected_category': selected_category,
         'search_query': search_query,
+    })
+
+
+def analytics_dashboard_view(request):
+    period = request.GET.get('period', '30d').strip().lower()
+    now = timezone.now()
+    today = now.date()
+
+    # Determine date range
+    if period == 'today':
+        start_date = today
+        period_label = 'Today'
+    elif period == '7d':
+        start_date = today - timezone.timedelta(days=7)
+        period_label = 'Last 7 Days'
+    elif period == 'this_month':
+        start_date = today.replace(day=1)
+        period_label = 'This Month'
+    elif period == 'all':
+        start_date = None
+        period_label = 'All Time'
+    else:
+        start_date = today - timezone.timedelta(days=30)
+        period_label = 'Last 30 Days'
+        period = '30d'
+
+    orders_qs = SalesOrder.objects.all()
+    sales_qs = Sale.objects.select_related('product', 'order').all()
+
+    if start_date:
+        orders_qs = orders_qs.filter(created_at__date__gte=start_date)
+        sales_qs = sales_qs.filter(sold_at__date__gte=start_date)
+
+    # 1. Primary KPIs
+    total_revenue = orders_qs.aggregate(total=Sum('total_amount'))['total'] or Decimal('0.00')
+    total_orders = orders_qs.count()
+    total_units_sold = sales_qs.aggregate(total=Sum('quantity_sold'))['total'] or 0
+    avg_order_value = (total_revenue / total_orders) if total_orders > 0 else Decimal('0.00')
+
+    # All-time stats for benchmark comparison
+    all_orders = SalesOrder.objects.all()
+    all_time_revenue = all_orders.aggregate(total=Sum('total_amount'))['total'] or Decimal('0.00')
+    all_time_orders = all_orders.count()
+
+    # Today's quick numbers
+    today_orders = SalesOrder.objects.filter(created_at__date=today)
+    today_revenue = today_orders.aggregate(total=Sum('total_amount'))['total'] or Decimal('0.00')
+    today_orders_count = today_orders.count()
+
+    # 2. Daily / Hourly Sales Trend for Chart.js
+    if period == 'today':
+        hourly_data = {}
+        for h in range(8, 22):
+            hourly_data[f"{h:02d}:00"] = Decimal('0.00')
+        for order in today_orders:
+            h_str = order.created_at.strftime('%H:00')
+            if h_str in hourly_data:
+                hourly_data[h_str] += order.total_amount
+            else:
+                hourly_data[h_str] = order.total_amount
+        trend_labels = list(hourly_data.keys())
+        trend_values = [float(v) for v in hourly_data.values()]
+        trend_chart_title = "Today's Hourly Revenue (₱)"
+    else:
+        num_days = 7 if period == '7d' else (30 if period == '30d' else 14)
+        trend_days = [today - timezone.timedelta(days=i) for i in range(num_days - 1, -1, -1)]
+        daily_rev_map = {d: Decimal('0.00') for d in trend_days}
+        daily_qs = SalesOrder.objects.filter(created_at__date__gte=trend_days[0])
+        for order in daily_qs:
+            d = order.created_at.date()
+            if d in daily_rev_map:
+                daily_rev_map[d] += order.total_amount
+        trend_labels = [d.strftime('%b %d') for d in trend_days]
+        trend_values = [float(daily_rev_map[d]) for d in trend_days]
+        trend_chart_title = f"Daily Revenue Trend ({period_label}) (₱)"
+
+    # 3. Payment Method Distribution
+    payment_methods = ['Cash', 'GCash', 'Maya', 'Card']
+    payment_labels = []
+    payment_revenue = []
+    payment_counts = []
+    for pm in payment_methods:
+        pm_orders = orders_qs.filter(payment_method__iexact=pm)
+        pm_rev = pm_orders.aggregate(total=Sum('total_amount'))['total'] or Decimal('0.00')
+        pm_count = pm_orders.count()
+        payment_labels.append(pm)
+        payment_revenue.append(float(pm_rev))
+        payment_counts.append(pm_count)
+
+    # 4. Category Performance
+    categories = Category.objects.all()
+    category_labels = []
+    category_revenue = []
+    category_units = []
+    for cat in categories:
+        cat_sales = sales_qs.filter(product__category=cat.slug)
+        cat_rev = cat_sales.aggregate(total=Sum('total_amount'))['total'] or Decimal('0.00')
+        cat_qty = cat_sales.aggregate(total=Sum('quantity_sold'))['total'] or 0
+        category_labels.append(cat.name)
+        category_revenue.append(float(cat_rev))
+        category_units.append(cat_qty)
+
+    # 5. Top 5 Best-Selling Products Ranking
+    top_products_qs = (
+        sales_qs.values('product__id', 'product__name', 'product__category', 'product__price')
+        .annotate(
+            units_sold=Sum('quantity_sold'),
+            revenue=Sum('total_amount'),
+            transactions=Count('id')
+        )
+        .order_by('-units_sold')[:6]
+    )
+    top_products = []
+    for item in top_products_qs:
+        prod_obj = Product.objects.filter(id=item['product__id']).first()
+        stock = prod_obj.total_stock if prod_obj else 0
+        img = prod_obj.display_image if prod_obj else ''
+        cat_display = prod_obj.category_display if prod_obj else item['product__category']
+        top_products.append({
+            'name': item['product__name'],
+            'category': cat_display,
+            'units_sold': item['units_sold'],
+            'revenue': float(item['revenue']),
+            'price': float(item['product__price']),
+            'current_stock': stock,
+            'image': img,
+        })
+
+    # 6. Inventory Health & Low Stock Risk
+    all_products = Product.objects.all()
+    out_of_stock_count = sum(1 for p in all_products if p.total_stock <= 0)
+    low_stock_count = sum(1 for p in all_products if 0 < p.total_stock <= 5)
+    healthy_stock_count = sum(1 for p in all_products if p.total_stock > 5)
+    total_inventory_items = all_products.count()
+    stock_risk_items = [p for p in all_products if p.total_stock <= 5][:6]
+
+    return render(request, 'Pages/Analytics.html', {
+        'page_title': 'Business Analytics',
+        'current_page': 'analytics_dashboard',
+        'period': period,
+        'period_label': period_label,
+        'total_revenue': total_revenue,
+        'total_orders': total_orders,
+        'total_units_sold': total_units_sold,
+        'avg_order_value': avg_order_value,
+        'all_time_revenue': all_time_revenue,
+        'all_time_orders': all_time_orders,
+        'today_revenue': today_revenue,
+        'today_orders_count': today_orders_count,
+        # Chart serialized data
+        'trend_labels_json': json.dumps(trend_labels),
+        'trend_values_json': json.dumps(trend_values),
+        'trend_chart_title': trend_chart_title,
+        'payment_labels_json': json.dumps(payment_labels),
+        'payment_revenue_json': json.dumps(payment_revenue),
+        'payment_counts_json': json.dumps(payment_counts),
+        'category_labels_json': json.dumps(category_labels),
+        'category_revenue_json': json.dumps(category_revenue),
+        'category_units_json': json.dumps(category_units),
+        'top_products': top_products,
+        'out_of_stock_count': out_of_stock_count,
+        'low_stock_count': low_stock_count,
+        'healthy_stock_count': healthy_stock_count,
+        'total_inventory_items': total_inventory_items,
+        'stock_risk_items': stock_risk_items,
     })
 
 
