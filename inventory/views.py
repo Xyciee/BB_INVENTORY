@@ -741,7 +741,7 @@ def categories_view(request):
         custom_slug = request.POST.get('slug', '').strip()
 
         if not name:
-            messages.error(request, 'Pakilagay ang pangalan ng kategorya (Category Name).')
+            messages.error(request, 'Please enter a category name.')
             return redirect('categories')
 
         slug = slugify(custom_slug) if custom_slug else slugify(name)
@@ -749,7 +749,7 @@ def categories_view(request):
             slug = f"cat-{uuid.uuid4().hex[:6]}"
 
         if Category.objects.filter(Q(name__iexact=name) | Q(slug=slug)).exists():
-            messages.error(request, f'Ang kategoryang "{name}" o slug "{slug}" ay umiiral na sa database.')
+            messages.error(request, f'A category with the name "{name}" or slug "{slug}" already exists.')
             return redirect('categories')
 
         cat = Category.objects.create(
@@ -758,7 +758,7 @@ def categories_view(request):
             icon=icon or '✨',
             description=description,
         )
-        messages.success(request, f'Tagumpay na nalikha ang kategoryang "{cat.name}" ({cat.icon})!')
+        messages.success(request, f'Category "{cat.name}" ({cat.icon}) was created successfully!')
         return redirect('categories')
 
     categories_qs = Category.objects.all().order_by('name')
@@ -810,7 +810,7 @@ def edit_category(request, category_id):
         new_slug = request.POST.get('slug', '').strip()
 
         if not name:
-            messages.error(request, 'Hindi maaaring walang laman ang Category Name.')
+            messages.error(request, 'Category name cannot be empty.')
             return redirect('categories')
 
         target_slug = slugify(new_slug) if new_slug else slugify(name)
@@ -819,7 +819,7 @@ def edit_category(request, category_id):
 
         conflict = Category.objects.filter(~Q(pk=category.id), Q(name__iexact=name) | Q(slug=target_slug)).first()
         if conflict:
-            messages.error(request, f'Ang pangalan o slug ay ginagamit na ng ibang kategorya ("{conflict.name}").')
+            messages.error(request, f'The category name or slug is already in use by "{conflict.name}".')
             return redirect('categories')
 
         old_slug = category.slug
@@ -832,7 +832,7 @@ def edit_category(request, category_id):
         if old_slug != target_slug:
             Product.objects.filter(category=old_slug).update(category=target_slug)
 
-        messages.success(request, f'Na-update ang kategoryang "{name}" ({category.icon})!')
+        messages.success(request, f'Category "{name}" ({category.icon}) was updated successfully!')
     return redirect('categories')
 
 
@@ -847,17 +847,17 @@ def delete_category(request, category_id):
 
         with transaction.atomic():
             if affected_count > 0:
-                if not reassign_slug:
+                if not reassign_slug or reassign_slug == cat_slug:
                     fallback_cat = Category.objects.exclude(pk=category.id).first()
-                    reassign_slug = fallback_cat.slug if fallback_cat else 'lips'
+                    reassign_slug = fallback_cat.slug if fallback_cat else 'uncategorized'
                 Product.objects.filter(category=cat_slug).update(category=reassign_slug)
 
             category.delete()
 
         if affected_count > 0:
-            messages.success(request, f'Nabura ang kategoryang "{cat_name}". Ang {affected_count} apektadong produkto ay inilipat sa "{reassign_slug}".')
+            messages.success(request, f'Category "{cat_name}" has been deleted. {affected_count} affected product(s) were reassigned to "{reassign_slug}".')
         else:
-            messages.success(request, f'Matagumpay na nabura ang kategoryang "{cat_name}".')
+            messages.success(request, f'Category "{cat_name}" has been deleted successfully.')
     return redirect('categories')
 
 

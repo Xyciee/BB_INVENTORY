@@ -11,12 +11,6 @@ DEFAULT_CATEGORIES = [
 
 def categories_processor(request):
     try:
-        if Category.objects.count() == 0:
-            for slug, name, icon, desc in DEFAULT_CATEGORIES:
-                Category.objects.get_or_create(
-                    slug=slug,
-                    defaults={'name': name, 'icon': icon, 'description': desc}
-                )
         categories = Category.objects.all().order_by('name')
     except Exception:
         categories = []

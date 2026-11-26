@@ -541,7 +541,7 @@
                 <h1>
                     <span>📂 Category Management Module</span>
                 </h1>
-                <p>Lumikha ng bagong kategorya, mag-edit ng mga pangalan at icon, at ayusin ang product catalog.</p>
+                <p>Create new categories, edit names and icons, and organize your product catalog.</p>
             </div>
             <div class="cat-header-actions">
                 <button type="button" class="btn btn-primary" onclick="openCreateModal()">
@@ -583,7 +583,7 @@
                         </div>
                     </div>
                     <div class="cat-item-desc">
-                        {{ cat.description|default:"Walang nakatalang paglalarawan para sa kategoryang ito." }}
+                        {{ cat.description|default:"No description provided for this category." }}
                     </div>
                 </div>
 
@@ -614,6 +614,7 @@
                             <button type="button" class="btn btn-danger-soft btn-sm js-delete-cat-btn"
                                 data-id="{{ cat.id }}"
                                 data-name="{{ cat.name }}"
+                                data-slug="{{ cat.slug }}"
                                 data-count="{{ item.product_count }}">
                                 🗑️ Delete
                             </button>
@@ -624,8 +625,8 @@
             {% endwith %}
             {% empty %}
             <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 50px 20px;">
-                <div style="font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">Walang kategorya na nahanap</div>
-                <p style="font-size: 0.88rem;">Pindutin ang <strong>+ Create New Category</strong> para lumikha ng bago.</p>
+                <div style="font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">No categories found</div>
+                <p style="font-size: 0.88rem;">Click <strong>+ Create New Category</strong> to add one.</p>
             </div>
             {% endfor %}
         </div>
@@ -638,7 +639,7 @@
         <div class="modal-header">
             <div>
                 <h2>Create New Category</h2>
-                <p>Magdagdag ng bagong kategorya para sa iyong POS at Inventory.</p>
+                <p>Add a new category for your POS and Inventory.</p>
             </div>
             <button type="button" class="modal-close-btn" onclick="closeCreateModal()">&times;</button>
         </div>
@@ -651,7 +652,7 @@
                 <label>Category Icon / Emoji</label>
                 <div style="display: flex; gap: 8px; align-items: center;">
                     <input type="text" id="createIconInput" name="icon" class="form-input" value="✨" style="width: 70px; text-align: center; font-size: 1.25rem;" maxlength="10">
-                    <span class="form-hint" style="margin-top: 0;">Pumili o mag-type ng emoji/icon na kakatawan sa kategorya.</span>
+                    <span class="form-hint" style="margin-top: 0;">Select or enter an emoji/icon to represent this category.</span>
                 </div>
                 <div class="emoji-chips">
                     <button type="button" class="emoji-chip-btn" onclick="selectCreateIcon('💄')">💄</button>
@@ -672,20 +673,20 @@
             <!-- Category Name -->
             <div class="form-group">
                 <label for="createNameInput">Category Name *</label>
-                <input type="text" id="createNameInput" name="name" class="form-input" placeholder="Halimbawa: Skincare, Sun Protection, Hair Care" required autocomplete="off">
+                <input type="text" id="createNameInput" name="name" class="form-input" placeholder="e.g., Skincare, Sun Protection, Hair Care" required autocomplete="off">
             </div>
 
             <!-- Slug -->
             <div class="form-group">
-                <label for="createSlugInput">URL Slug (Awtomatiko kung blangko)</label>
-                <input type="text" id="createSlugInput" name="slug" class="form-input" placeholder="Halimbawa: skincare, sun-protection">
-                <span class="form-hint">Gagamitin ito sa URL filter sa POS at Inventory.</span>
+                <label for="createSlugInput">URL Slug (Auto-generated if blank)</label>
+                <input type="text" id="createSlugInput" name="slug" class="form-input" placeholder="e.g., skincare, sun-protection">
+                <span class="form-hint">Used for URL filtering in POS and Inventory.</span>
             </div>
 
             <!-- Description -->
             <div class="form-group">
-                <label for="createDescInput">Description (Opsyonal)</label>
-                <textarea id="createDescInput" name="description" class="form-textarea" rows="2" placeholder="Maikling deskripsyon ukol sa mga produkto sa kategoryang ito..."></textarea>
+                <label for="createDescInput">Description (Optional)</label>
+                <textarea id="createDescInput" name="description" class="form-textarea" rows="2" placeholder="Brief description about products in this category..."></textarea>
             </div>
 
             <div class="modal-footer">
@@ -702,7 +703,7 @@
         <div class="modal-header">
             <div>
                 <h2>Edit Category</h2>
-                <p>Baguhin ang pangalan, icon, slug, o deskripsyon.</p>
+                <p>Update name, icon, slug, or description.</p>
             </div>
             <button type="button" class="modal-close-btn" onclick="closeEditModal()">&times;</button>
         </div>
@@ -715,7 +716,7 @@
                 <label>Category Icon / Emoji</label>
                 <div style="display: flex; gap: 8px; align-items: center;">
                     <input type="text" id="editIconInput" name="icon" class="form-input" style="width: 70px; text-align: center; font-size: 1.25rem;" maxlength="10">
-                    <span class="form-hint" style="margin-top: 0;">Pumili o mag-type ng emoji/icon.</span>
+                    <span class="form-hint" style="margin-top: 0;">Select or type an emoji/icon.</span>
                 </div>
                 <div class="emoji-chips">
                     <button type="button" class="emoji-chip-btn" onclick="selectEditIcon('💄')">💄</button>
@@ -741,7 +742,7 @@
             <div class="form-group">
                 <label for="editSlugInput">URL Slug</label>
                 <input type="text" id="editSlugInput" name="slug" class="form-input" required>
-                <span class="form-hint">Kapag binago ang slug, awtomatikong ia-update ang mga produktong nakapaloob dito.</span>
+                <span class="form-hint">Updating the slug will automatically update all associated products.</span>
             </div>
 
             <!-- Description -->
@@ -764,7 +765,7 @@
         <div class="modal-header">
             <div>
                 <h2 style="color: #dc2626;">🗑️ Delete Category</h2>
-                <p>Kumpirmahin ang pagbura ng kategorya.</p>
+                <p>Confirm category deletion.</p>
             </div>
             <button type="button" class="modal-close-btn" onclick="closeDeleteModal()">&times;</button>
         </div>
@@ -773,21 +774,22 @@
             {% csrf_token %}
 
             <div style="font-size: 0.92rem; color: var(--text-main); margin-bottom: 16px; line-height: 1.5;">
-                Sigurado ka bang nais mong burahin ang kategoryang <strong id="deleteCatName">--</strong>?
+                Are you sure you want to permanently delete category <strong id="deleteCatName">--</strong>?
             </div>
 
             <div id="reassignSection" style="display: none; background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 14px; margin-bottom: 18px;">
                 <div style="font-size: 0.82rem; font-weight: 700; color: #b45309; margin-bottom: 4px;">
-                    ⚠️ May <span id="deleteCatCount">0</span> produkto na kabilang sa kategoryang ito!
+                    ⚠️ There are <span id="deleteCatCount">0</span> product(s) assigned to this category!
                 </div>
                 <div style="font-size: 0.78rem; color: #78350f; margin-bottom: 10px;">
-                    Pumili ng kategorya kung saan ililipat ang mga apektadong produkto upang hindi sila mawala:
+                    Select a category to reassign these products to so they remain accessible:
                 </div>
-                <label style="font-size: 0.74rem; font-weight: 700; color: #78350f; text-transform: uppercase;">Ilipat ang mga produkto sa:</label>
+                <label style="font-size: 0.74rem; font-weight: 700; color: #78350f; text-transform: uppercase;">Reassign products to:</label>
                 <select name="reassign_to" id="reassignSelect" class="form-select" style="background: #ffffff; margin-top: 4px;">
                     {% for cat in all_categories %}
-                    <option value="{{ cat.slug }}">{{ cat.icon }} {{ cat.name }}</option>
+                    <option value="{{ cat.slug }}" data-cat-slug="{{ cat.slug }}">{{ cat.icon }} {{ cat.name }}</option>
                     {% endfor %}
+                    <option value="uncategorized" data-cat-slug="uncategorized">📁 Uncategorized</option>
                 </select>
             </div>
 
@@ -850,11 +852,29 @@
         if (editModal) editModal.classList.remove('active');
     }
 
-    function openDeleteModal(id, name, count) {
+    function openDeleteModal(id, name, count, slug) {
         if (!deleteModal) return;
         deleteCategoryForm.action = '/categories/delete/' + id + '/';
         deleteCatName.textContent = '"' + name + '"';
         deleteCatCount.textContent = count;
+
+        const reassignSelect = document.getElementById('reassignSelect');
+        if (reassignSelect) {
+            let firstValidVal = '';
+            Array.from(reassignSelect.options).forEach(opt => {
+                if (opt.value === slug) {
+                    opt.disabled = true;
+                    opt.style.display = 'none';
+                } else {
+                    opt.disabled = false;
+                    opt.style.display = '';
+                    if (!firstValidVal) firstValidVal = opt.value;
+                }
+            });
+            if (reassignSelect.value === slug && firstValidVal) {
+                reassignSelect.value = firstValidVal;
+            }
+        }
 
         if (parseInt(count, 10) > 0) {
             reassignSection.style.display = 'block';
@@ -909,7 +929,8 @@
             openDeleteModal(
                 btn.getAttribute('data-id'),
                 btn.getAttribute('data-name'),
-                btn.getAttribute('data-count')
+                btn.getAttribute('data-count'),
+                btn.getAttribute('data-slug')
             );
         });
     });
