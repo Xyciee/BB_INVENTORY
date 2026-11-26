@@ -56,9 +56,6 @@
                 <span>{{ cat.icon|default:"✨" }}</span>
                 <span>{{ cat.name|upper }}</span>
             </a>
-            {% empty %}
-            <a href="?category=lips" class="filter-link {% if selected_cat == 'lips' %}active{% endif %}">💄 LIPS</a>
-            <a href="?category=face" class="filter-link {% if selected_cat == 'face' %}active{% endif %}">✨ FACE</a>
             {% endfor %}
         </div>
     </div>

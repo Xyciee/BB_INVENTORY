@@ -852,7 +852,7 @@
                                 <form method="POST" action="{% url 'delete_product' item.id %}" style="display:inline;">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-danger-soft btn-sm"
-                                        onclick="return confirm('Sigurado ka bang nais mong burahin ang item na ito?');">
+                                        onclick="return confirm('Are you sure you want to delete this product?');">
                                         🗑️ Delete
                                     </button>
                                 </form>
@@ -864,9 +864,9 @@
                         <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 48px 16px;">
                             <div
                                 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; color: var(--text-main);">
-                                Walang produkto sa imbentaryo</div>
-                            <p style="font-size: 0.88rem;">Mag-click sa <strong>+ Add Product</strong> o <strong>Import
-                                    Excel / CSV</strong> para magsimula.</p>
+                                No products found in inventory</div>
+                            <p style="font-size: 0.88rem;">Click <strong>+ Add Product</strong> or <strong>Import
+                                    Excel / CSV</strong> to get started.</p>
                         </td>
                     </tr>
                     {% endfor %}
@@ -941,11 +941,7 @@
                         {% for cat in all_categories %}
                         <option value="{{ cat.slug }}">{{ cat.icon|default:"✨" }} {{ cat.name|upper }}</option>
                         {% empty %}
-                        <option value="lips">💄 LIPS</option>
-                        <option value="face">✨ FACE</option>
-                        <option value="eyes">👁️ EYES</option>
-                        <option value="bath_and_body">🧴 BATH AND BODY</option>
-                        <option value="fragrance">🌸 FRAGRANCE</option>
+                        <option value="uncategorized">📁 UNCATEGORIZED</option>
                         {% endfor %}
                     </select>
                 </div>

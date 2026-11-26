@@ -44,7 +44,7 @@ class Product(models.Model):
 
     barcode = models.CharField(max_length=100, unique=True)
     name = models.CharField(max_length=200)
-    category = models.CharField(max_length=100, default='lips')
+    category = models.CharField(max_length=100, default='uncategorized')
     variant = models.CharField(max_length=255, blank=True, default='')
     image = models.FileField(upload_to='products/', blank=True, null=True)
     image_url = models.URLField(max_length=500, blank=True, default='')
